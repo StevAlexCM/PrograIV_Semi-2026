@@ -23,6 +23,10 @@ createApp({
         }
     },
     methods:{
+        buscar(ventana, metodo){
+            this.$refs[ventana][metodo]()
+            this.abrirVentana(ventana);
+        },
         abrirVentana(ventana){
             this.forms[ventana].mostrar = !this.forms[ventana].mostrar;
             console.log(this.forms[ventana].mostrar, ventana);

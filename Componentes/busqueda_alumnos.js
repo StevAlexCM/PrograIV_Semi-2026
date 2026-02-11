@@ -5,12 +5,12 @@ const busqueda_alumnos = {
             alumnos:[]
         }
     },
+    created(){
+        this.obtenerAlumnos();
+    },
     methods:{
         async obtenerAlumnos(){
-            this.alumnos = await db.alumnos.filter(
-                alumno => alumno.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || alumno.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
+            this.alumnos = await db.alumnos.toArray();
         },
         async eliminarAlumno(idAlumno, e){
             e.stopPropagation();
