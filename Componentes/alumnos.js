@@ -1,4 +1,5 @@
 const alumnos = {
+    props:['forms'],
     data(){
         return{
             alumno:{
@@ -16,6 +17,7 @@ const alumnos = {
     },
     methods:{
         buscarAlumnos(){
+            this.forms.busqueda_alumnos.mostrar = !this.forms.busqueda_alumnos.mostrar;
             this.$emit('buscar');
         },
         modificarAlumno(alumno){ 
