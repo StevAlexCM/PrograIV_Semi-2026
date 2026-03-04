@@ -1,35 +1,23 @@
 const { createApp } = Vue,
     Dexie = window.Dexie,
-    db = new Dexie("db_academica");
+    db = new Dexie("db_codigo_estudiante");
+    sha256 = window.sha256;
 
 
 createApp({
     components:{
-        alumnos,
-        busqueda_alumnos,
-        materias,
-        busqueda_materias,
-        docentes,
-        busqueda_docentes,
-        matriculas,
-        busqueda_matriculas,
-        inscripciones,
-        busqueda_inscripciones
-        
+        autor,
+        busqueda_autor,
+        libros,
+        busqueda_libros
     },
     data(){
         return{
             forms:{
-                alumnos:{mostrar:false},
-                busqueda_alumnos:{mostrar:false},
-                materias:{mostrar:false},
-                busqueda_materias:{mostrar:false},
-                docentes:{mostrar:false},
-                busqueda_docentes:{mostrar:false},
-                matriculas:{mostrar:false},
-                busqueda_matriculas:{mostrar:false},
-                inscripciones:{mostrar:false},
-                busqueda_inscripciones:{mostrar:false}
+                autor:{mostrar:false},
+                busqueda_autor:{mostrar:false},
+                libros:{mostrar:false},
+                busqueda_libros:{mostrar:false}
             }
         }
     },
@@ -46,11 +34,8 @@ createApp({
     },
     mounted(){
         db.version(1).stores({
-            "alumnos": "idAlumno, codigo, nombre, direccion, email, telefono",
-            "materias": "idMateria, codigo, nombre, uv",
-            "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon",
-            "matriculas": "idMatricula, idAlumno, idMateria, idDocente, fecha_matricula, nombre_materia",
-            "inscripciones": "idInscripcion, idAlumno, nombre_alumno, dui, fecha_inscripcion, ciclo_periodo, carrera, estado"
+            "autor": "idAutor, codigo, nombre, pais, telefono",
+            "libros": "idLibro, idAutor, isbn, titulo, editorial, edicion"
         });
     }
 }).mount("#app");
