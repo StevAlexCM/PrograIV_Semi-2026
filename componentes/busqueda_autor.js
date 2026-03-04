@@ -14,6 +14,7 @@ const busqueda_autor = {
                 autor => autor.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
                     || autor.nombre.toLowerCase().includes(this.buscar.toLowerCase())
                     || autor.pais.toLowerCase().includes(this.buscar.toLowerCase())
+                    || autor.telefono.toLowerCase().includes(this.buscar.toLowerCase())
             ).toArray();
         },
         async eliminarAutor(autor, e){
@@ -36,7 +37,7 @@ const busqueda_autor = {
                     </div>
                     <div class="card-body p-0">
                         <div class="p-3 bg-light border-bottom">
-                            <input autocomplete="off" type="search" @keyup="obtenerAutores()" v-model="buscar" placeholder="🔍 Buscar autor (código, nombre o país)..." class="form-control form-control-lg shadow-sm border-0">
+                            <input autocomplete="off" type="search" @keyup="obtenerAutores()" v-model="buscar" placeholder="🔍 Buscar autor (código, nombre, país o teléfono)" class="form-control form-control-lg shadow-sm border-0">
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover table-striped mb-0 text-center align-middle" id="tblAutores">

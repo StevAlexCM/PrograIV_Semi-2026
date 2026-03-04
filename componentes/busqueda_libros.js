@@ -14,6 +14,7 @@ const busqueda_libros = {
                 libro => libro.isbn.toLowerCase().includes(this.buscar.toLowerCase()) 
                     || libro.titulo.toLowerCase().includes(this.buscar.toLowerCase())
                     || libro.editorial.toLowerCase().includes(this.buscar.toLowerCase())
+                    || libro.edicion.toLowerCase().includes(this.buscar.toLowerCase())
             ).toArray();
 
             // Mapear nombre del autor para visualización
