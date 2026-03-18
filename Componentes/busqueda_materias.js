@@ -29,7 +29,7 @@ const busqueda_materias = {
     template: `
         <div class="row">
             <div class="col-6">
-                <table class="table table-success table-striped" id="tblMaterias">
+                <table class="table table-striped table-hover" id="tblMaterias">
                     <thead>
                         <tr>
                             <th colspan="6">

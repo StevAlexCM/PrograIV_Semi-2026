@@ -12,15 +12,15 @@ const alumnos = {
             },
             accion:'nuevo',
             idAlumno:0,
-            data_alumnos_:[]
+            data_alumnos:[]
         }
     },
     methods:{
-        buscarAlumnos(){
+        buscarAlumno(){
             this.forms.busqueda_alumnos.mostrar = !this.forms.busqueda_alumnos.mostrar;
             this.$emit('buscar');
         },
-        modificarAlumno(alumno){ 
+        modificarAlumno(alumno){
             this.accion = 'modificar';
             this.idAlumno = alumno.idAlumno;
             this.alumno.codigo = alumno.codigo;
@@ -38,8 +38,23 @@ const alumnos = {
                 email: this.alumno.email,
                 telefono: this.alumno.telefono
             };
+            datos.hash = sha256(JSON.stringify(datos));
+            this.buscar = datos.codigo;
+            //await this.obtenerAlumnos();
+
+            if(this.data_alumnos.length > 0 && this.accion=='nuevo'){
+                alertify.error(`El codigo del alumno ya existe, ${this.data_alumnos[0].nombre}`);
+                return; //Termina la ejecucion de la funcion
+            }
             db.alumnos.put(datos);
+            fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${encodeURIComponent(JSON.stringify(datos))}`)
+                .then(response=>response.json())
+                .then(data=>{
+                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                });
             this.limpiarFormulario();
+            alertify.success(`${datos.nombre} guardado correctamente`);
+            //this.obtenerAlumnos();
         },
         getId(){
             return new Date().getTime();
@@ -107,7 +122,7 @@ const alumnos = {
                                 <div class="col text-center">
                                     <button type="submit" id="btnGuardarAlumno" class="btn btn-primary">GUARDAR</button>
                                     <button type="reset" id="btnCancelarAlumno" class="btn btn-warning">NUEVO</button>
-                                    <button type="button" @click="buscarAlumnos" id="btnBuscarAlumno" class="btn btn-success">BUSCAR</button>
+                                    <button type="button" @click="buscarAlumno" id="btnBuscarAlumno" class="btn btn-success">BUSCAR</button>
                                 </div>
                             </div>
                         </div>
