@@ -10,15 +10,34 @@ const busqueda_docentes = {
             this.$emit('modificar', docente);
         },
         async obtenerDocentes(){
-            this.docentes = await db.docentes.filter(
-                docente => docente.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || docente.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
+            try {
+                this.docentes = await db.docentes.filter(
+                    docente => (docente.codigo || '').toLowerCase().includes(this.buscar.toLowerCase()) 
+                        || (docente.nombre || '').toLowerCase().includes(this.buscar.toLowerCase())
+                ).toArray();
+            } catch(e) {
+                console.error(e);
+                this.docentes = [];
+            }
+            if( this.docentes.length<1 && this.buscar.length<=0){
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/docentes/docente.php?accion=consultar`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        this.docentes = data;
+                        db.docentes.bulkPut(data);
+                    });
+            }
         },
         async eliminarDocente(docente, e){
             e.stopPropagation();
             alertify.confirm('Elimanar docentes', `¿Está seguro de eliminar el docente ${docente.nombre}?`, async e=>{
-                await db.docentes.delete(docente.idDocente);
+                await db.docentes.delete(String(docente.idDocente));
+                await db.docentes.delete(Number(docente.idDocente));
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/docentes/docente.php?accion=eliminar&docentes=${encodeURIComponent(JSON.stringify(docente))}`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                    });
                 this.obtenerDocentes();
                 alertify.success(`Docente ${docente.nombre} eliminado correctamente`);
             }, () => {

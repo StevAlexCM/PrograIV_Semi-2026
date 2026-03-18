@@ -10,15 +10,34 @@ const busqueda_materias = {
             this.$emit('modificar', materia);
         },
         async obtenerMaterias(){
-            this.materias = await db.materias.orderBy('codigo').filter(
-                materia => materia.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || materia.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
+            try {
+                this.materias = await db.materias.orderBy('codigo').filter(
+                    materia => (materia.codigo || '').toLowerCase().includes(this.buscar.toLowerCase()) 
+                        || (materia.nombre || '').toLowerCase().includes(this.buscar.toLowerCase())
+                ).toArray();
+            } catch(e) {
+                console.error(e);
+                this.materias = [];
+            }
+            if( this.materias.length<1 && this.buscar.length<=0){
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/materias/materia.php?accion=consultar`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        this.materias = data;
+                        db.materias.bulkPut(data);
+                    });
+            }
         },
         async eliminarMateria(materia, e){
             e.stopPropagation();
             alertify.confirm('Eliminar materias', `¿Está seguro de eliminar el materia ${materia.nombre}?`, async e=>{
-                await db.materias.delete(materia.idMateria);
+                await db.materias.delete(String(materia.idMateria));
+                await db.materias.delete(Number(materia.idMateria));
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/materias/materia.php?accion=eliminar&materias=${encodeURIComponent(JSON.stringify(materia))}`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                    });
                 this.obtenerMaterias();
                 alertify.success(`Materia ${materia.nombre} eliminada correctamente`);
             }, () => {

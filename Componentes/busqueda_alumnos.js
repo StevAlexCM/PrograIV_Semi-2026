@@ -10,23 +10,29 @@ const busqueda_alumnos = {
             this.$emit('modificar', alumno);
         },
         async obtenerAlumnos(){
-            this.alumnos = await db.alumnos.filter(
-                alumno => alumno.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || alumno.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
+            try {
+                this.alumnos = await db.alumnos.filter(
+                    alumno => (alumno.codigo || '').toLowerCase().includes(this.buscar.toLowerCase()) 
+                        || (alumno.nombre || '').toLowerCase().includes(this.buscar.toLowerCase())
+                ).toArray();
+            } catch(e) {
+                console.error(e);
+                this.alumnos = [];
+            }
             if( this.alumnos.length<1 && this.buscar.length<=0){
                 fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/alumnos/alumno.php?accion=consultar`)
                     .then(response=>response.json())
                     .then(data=>{
                         this.alumnos = data;
-                        db.alumnos.bulkAdd(data);
+                        db.alumnos.bulkPut(data);
                     });
             }
         },
         async eliminarAlumno(alumno, e){
             e.stopPropagation();
             alertify.confirm('Elimanar alumnos', `¿Está seguro de eliminar el alumno ${alumno.nombre}?`, async e=>{
-                await db.alumnos.delete(alumno.idAlumno);
+                await db.alumnos.delete(String(alumno.idAlumno));
+                await db.alumnos.delete(Number(alumno.idAlumno));
                 fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${encodeURIComponent(JSON.stringify(alumno))}`)
                     .then(response=>response.json())
                     .then(data=>{

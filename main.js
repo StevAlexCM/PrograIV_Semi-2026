@@ -11,7 +11,11 @@ createApp({
         materias,
         busqueda_materias,
         docentes,
-        busqueda_docentes
+        busqueda_docentes,
+        inscripciones,
+        busqueda_inscripciones,
+        matriculas,
+        busqueda_matriculas
     },
     data(){
         return{
@@ -23,7 +27,9 @@ createApp({
                 docentes:{mostrar:false},
                 busqueda_docentes:{mostrar:false},
                 matriculas:{mostrar:false},
-                inscripciones:{mostrar:false}
+                busqueda_matriculas:{mostrar:false},
+                inscripciones:{mostrar:false},
+                busqueda_inscripciones:{mostrar:false}
             }
         }
     },
@@ -39,10 +45,12 @@ createApp({
         }
     },
     mounted(){
-        db.version(1).stores({
+        db.version(2).stores({
             "alumnos": "idAlumno, codigo, nombre, direccion, email, telefono",
             "materias": "idMateria, codigo, nombre, uv",
-            "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon"
+            "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon",
+            "inscripciones": "idInscripciones, codigo_alumno, nombre_alumno, codigo_materia, nombre_materia, uv, fecha_inscripcion, ciclo_periodo, estado, observaciones",
+            "matriculas": "idMatricula, codigo_alumno, nombre_alumno, fecha, ciclo, estado"
         });
     }
 }).mount("#app");

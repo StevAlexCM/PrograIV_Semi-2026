@@ -40,6 +40,11 @@ const materias = {
                 return; //Termina la ejecucion de la funcion
             }
             db.materias.put(datos);
+            fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/materias/materia.php?accion=${this.accion}&materias=${encodeURIComponent(JSON.stringify(datos))}`)
+                .then(response=>response.json())
+                .then(data=>{
+                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                });
             this.limpiarFormulario();
             //this.obtenerMaterias();
             alertify.success(`Materia ${datos.nombre} guardada correctamente`);
@@ -60,7 +65,7 @@ const materias = {
             <div class="col-6">
                 <form id="frmMaterias" @submit.prevent="guardarMateria" @reset.prevent="limpiarFormulario">
                     <div class="card text-bg-dark mb-3" style="max-width: 36rem;">
-                        <div class="card-header">REGISTRO DE ALUMNOS</div>
+                        <div class="card-header">REGISTRO DE MATERIAS</div>
                         <div class="card-body">
                             <div class="row p-1">
                                 <div class="col-3">

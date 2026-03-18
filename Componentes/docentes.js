@@ -49,6 +49,11 @@ const docentes = {
                 return; //Termina la ejecucion de la funcion
             }
             db.docentes.put(datos);
+            fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/docentes/docente.php?accion=${this.accion}&docentes=${encodeURIComponent(JSON.stringify(datos))}`)
+                .then(response=>response.json())
+                .then(data=>{
+                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                });
             this.limpiarFormulario();
             alertify.success(`${datos.nombre} guardado correctamente`);
             //this.obtenerDocentes();
@@ -72,7 +77,7 @@ const docentes = {
             <div class="col-6">
                 <form id="frmDocentes" @submit.prevent="guardarDocente" @reset.prevent="limpiarFormulario">
                     <div class="card text-bg-dark mb-3" style="max-width: 36rem;">
-                        <div class="card-header">REGISTRO DE ALUMNOS</div>
+                        <div class="card-header">REGISTRO DE DOCENTES</div>
                         <div class="card-body">
                             <div class="row p-1">
                                 <div class="col-3">

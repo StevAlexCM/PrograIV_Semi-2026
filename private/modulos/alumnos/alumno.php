@@ -24,6 +24,10 @@ class alumnos{
         }
     }
     private function validar_datos(){
+        global $accion;
+        if($accion === 'eliminar') {
+            return $this->administrar_alumnos();
+        }
         if(empty($this->datos['codigo'])){
             $this->respuesta['msg'] = 'El codigo es requerido';
         }
