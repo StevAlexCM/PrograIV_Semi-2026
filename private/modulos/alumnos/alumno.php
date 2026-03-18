@@ -4,7 +4,6 @@ extract($_REQUEST);
 
 $alumnos = $alumnos ?? '[]';
 $accion = $accion ?? '';
-file_put_contents(__DIR__ . '/log.txt', date('Y-m-d H:i:s') . " - Accion: $accion - Payload: $alumnos\n", FILE_APPEND);
 
 $class_alumnos = new alumnos($conexion);
 echo json_encode($class_alumnos->recibir_datos($alumnos));

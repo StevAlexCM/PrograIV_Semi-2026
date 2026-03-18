@@ -15,7 +15,7 @@ const busqueda_alumnos = {
                     || alumno.nombre.toLowerCase().includes(this.buscar.toLowerCase())
             ).toArray();
             if( this.alumnos.length<1 && this.buscar.length<=0){
-                fetch(`private/modulos/alumnos/alumno.php?accion=consultar`)
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/alumnos/alumno.php?accion=consultar`)
                     .then(response=>response.json())
                     .then(data=>{
                         this.alumnos = data;
@@ -27,7 +27,7 @@ const busqueda_alumnos = {
             e.stopPropagation();
             alertify.confirm('Elimanar alumnos', `¿Está seguro de eliminar el alumno ${alumno.nombre}?`, async e=>{
                 await db.alumnos.delete(alumno.idAlumno);
-                fetch(`private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${encodeURIComponent(JSON.stringify(alumno))}`)
+                fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${encodeURIComponent(JSON.stringify(alumno))}`)
                     .then(response=>response.json())
                     .then(data=>{
                         if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);

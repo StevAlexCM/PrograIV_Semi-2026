@@ -7,3 +7,4 @@
 2026-03-18 03:04:20 - Accion: eliminar - Payload: {"idAlumno":"1773799345748","codigo":"B01","nombre":"Testing Agent","direccion":"Local","email":"agent@test.com","telefono":"999"}
 2026-03-18 03:04:20 - Accion: consultar - Payload: []
 2026-03-18 03:04:59 - Accion: nuevo - Payload: {"idAlumno":1773799499223,"codigo":"USSS094524","nombre":"Steven Alexander Campos Martínez","direccion":"USULUTAN","email":"Campossteven593@gmail.com","telefono":"70662642","hash":{"words":[1733585074,1016423735,-1639153750,-392458654,-698150282,-627506732,-1574062954,-1443201542],"sigBytes":32}}
+2026-03-18 03:28:14 - Accion: nuevo - Payload: {"idAlumno":1710726858000,"codigo":"A03","nombre":"Test PHP","direccion":"Dir","email":"t@t.com","telefono":"1234","hash":{"words":[1,2,3,4,5,6,7,8],"sigBytes":32}}

@@ -38,7 +38,7 @@ const alumnos = {
                 email: this.alumno.email,
                 telefono: this.alumno.telefono
             };
-            datos.hash = sha256(JSON.stringify(datos));
+            datos.hash = sha256(JSON.stringify(datos)).toString();
             this.buscar = datos.codigo;
             //await this.obtenerAlumnos();
 
@@ -47,7 +47,7 @@ const alumnos = {
                 return; //Termina la ejecucion de la funcion
             }
             db.alumnos.put(datos);
-            fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${encodeURIComponent(JSON.stringify(datos))}`)
+            fetch(`http://localhost/PrograIV_Semi-2026/private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${encodeURIComponent(JSON.stringify(datos))}`)
                 .then(response=>response.json())
                 .then(data=>{
                     if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
