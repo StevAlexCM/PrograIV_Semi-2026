@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "alertifyjs": "^1.14.0",
+    "dexie": "^4.4.2"
+  }
+}
