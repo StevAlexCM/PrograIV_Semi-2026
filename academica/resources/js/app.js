@@ -7,50 +7,29 @@
 import './bootstrap';
 import { createApp } from 'vue';
 import Dexie from 'dexie';
-import alumnos from './components/AlumnoComponent.vue';
-import buscar_alumnos from './components/BusquedaAlumnoComponent.vue';
-import docentes from './components/DocenteComponent.vue';
-import buscar_docentes from './components/BusquedaDocenteComponent.vue';
-import materias from './components/MateriaComponent.vue';
-import buscar_materias from './components/BusquedaMateriaComponent.vue';
-import matriculas from './components/MatriculaComponent.vue';
-import buscar_matriculas from './components/BusquedaMatriculaComponent.vue';
-import inscripciones from './components/InscripcionComponent.vue';
-import buscar_inscripciones from './components/BusquedaInscripcionComponent.vue';
+import pagos from './components/PagoComponent.vue';
+import buscar_pagos from './components/BusquedaPagoComponent.vue';
+import reportes from './components/ReporteComponent.vue';
+import buscar_reportes from './components/BusquedaReporteComponent.vue';
 import { vDraggable } from './draggable';
 
-window.db = new Dexie('db_academica');
+window.db = new Dexie('db_pagos_reportes');
 
 createApp({
     components: {
-        alumnos,
-        buscar_alumnos,
-        docentes,
-        buscar_docentes,
-        materias,
-        buscar_materias,
-        matriculas,
-        buscar_matriculas,
-        inscripciones,
-        buscar_inscripciones
+        pagos,
+        buscar_pagos,
+        reportes,
+        buscar_reportes
     },
     data(){
         return{
             forms:{
-                alumnos:{mostrar:false},
-                buscar_alumnos:{mostrar:false},
+                pagos:{mostrar:false},
+                buscar_pagos:{mostrar:false},
 
-                materias:{mostrar:false},
-                buscar_materias:{mostrar:false},
-
-                docentes:{mostrar:false},
-                buscar_docentes:{mostrar:false},
-
-                matriculas:{mostrar:false},
-                buscar_matriculas:{mostrar:false},
-
-                inscripciones:{mostrar:false},
-                buscar_inscripciones:{mostrar:false}
+                reportes:{mostrar:false},
+                buscar_reportes:{mostrar:false}
             }
         };
     },
@@ -70,12 +49,9 @@ createApp({
         }
     },
     created(){
-        db.version(1).stores({
-            alumnos:'idAlumno, codigo, nombre, direccion, email, telefono',
-            materias:'idMateria, codigo, nombre, uv',
-            docentes:'idDocente, codigo, nombre, direccion, email, telefono, escalafon',
-            matriculas:'idMatricula, codigo_alumno, ciclo_periodo',
-            inscripciones:'idInscripcion, codigo_alumno, materia, fecha_inscripcion, ciclo_periodo'
+        db.version(4).stores({
+            pagos:'id_pago, id_usuario, fecha_pago, mes_facturado',
+            reportes:'id_reporte, id_usuario, fecha_reporte, tipo_falla, descripcion, direccion, zona'
         });
     }
 }).directive('draggable', vDraggable).mount('#appSistema');

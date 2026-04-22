@@ -6,6 +6,8 @@ use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\ReporteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,4 +55,16 @@ Route::controller(InscripcionController::class)->group(function () {
     Route::post('/inscripcion', 'store');
     Route::put('/inscripcion', 'update');
     Route::delete('/inscripcion', 'destroy');
+});
+Route::controller(PagoController::class)->group(function () {
+    Route::get('/pago', 'index');
+    Route::post('/pago', 'store');
+    Route::put('/pago', 'update');
+    Route::delete('/pago', 'destroy');
+});
+Route::controller(ReporteController::class)->group(function () {
+    Route::get('/reporte', 'index');
+    Route::post('/reporte', 'store');
+    Route::put('/reporte', 'update');
+    Route::delete('/reporte', 'destroy');
 });
