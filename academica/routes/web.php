@@ -23,9 +23,85 @@ use App\Http\Controllers\ReporteController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/calidad', function () {
+    return view('calidad');
+});
+Route::get('/alertas', function () {
+    return view('alertas');
+});
+Route::get('/reportar', function () {
+    return view('reportar');
+});
+Route::get('/estandares', function () {
+    return view('estandares');
+});
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+
+Route::post('/login', function (Illuminate\Http\Request $request) {
+    $credentials = $request->validate([
+        'correo_usuario' => 'required',
+        'contraseña' => 'required'
+    ]);
+
+    // Búsqueda manual porque usamos una tabla personalizada
+    $usuario = App\Models\LoginUsuario::where('correo_usuario', $credentials['correo_usuario'])
+                                        ->where('contraseña', $credentials['contraseña'])
+                                        ->first();
+
+    if ($usuario) {
+        if ($usuario->is_active) {
+            // Guardamos sesión simple
+            session([
+                'usuario_id' => $usuario->id_usuario,
+                'usuario_nombre' => explode('@', $usuario->correo_usuario)[0]
+            ]);
+            return response()->json(['success' => true, 'message' => '¡Bienvenido a HidroVida!', 'url' => url('/')]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Tu cuenta está inactiva. Contacta al administrador.']);
+        }
+    }
+
+    return response()->json(['success' => false, 'message' => 'Correo o contraseña incorrectos.']);
+});
+
+// Rutas para Login Administrador
+Route::get('/login_admin', function () {
+    return view('login_admin');
+})->name('login.admin.view');
+
+Route::post('/login_admin', function (Illuminate\Http\Request $request) {
+    $credentials = $request->validate([
+        'correo_admin' => 'required',
+        'contraseña_admin' => 'required'
+    ]);
+
+    $admin = App\Models\LoginAdministrador::where('correo_admin', $credentials['correo_admin'])
+                                        ->where('contraseña_admin', $credentials['contraseña_admin'])
+                                        ->first();
+
+    if ($admin) {
+        session([
+            'admin_id' => $admin->id_usuario,
+            'usuario_nombre' => $admin->nombre_admin
+        ]);
+        // Podrías redirigir a un dashboard específico de admin después
+        return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/')]);
+    }
+
+    return response()->json(['success' => false, 'message' => 'Credenciales administrativas incorrectas.']);
+})->name('login.admin');
+
+Route::get('/logout', function () {
+    session()->forget(['usuario_id', 'admin_id', 'usuario_nombre']);
+    return redirect('/');
+});
+
 Route::get('/bienvenida/{nombre}', function ($nombre) {
     return '<h1>Bienvenido a mi pagina, hola '.$nombre.', como estas...</h1>';
 });
+
 Route::controller(AlumnoController::class)->group(function () {
     Route::get('/alumno', 'index');
     Route::post('/alumno', 'store');

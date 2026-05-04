@@ -13,10 +13,10 @@ class Reporte extends Model
     protected $primaryKey = 'id_reporte';
     protected $fillable = [
         'id_usuario',
-        'fecha_reporte',
-        'tipo_falla',
+        'Informacion_de_contacto',
+        'categoria_de_problema',
         'descripcion',
-        'direccion',
-        'zona'
+        'numero_casa',
+        'sector_manzana_calle'
     ];
 }
