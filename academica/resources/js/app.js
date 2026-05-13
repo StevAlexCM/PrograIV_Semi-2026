@@ -11,6 +11,7 @@ import pagos from './components/PagoComponent.vue';
 import buscar_pagos from './components/BusquedaPagoComponent.vue';
 import reportes from './components/ReporteComponent.vue';
 import buscar_reportes from './components/BusquedaReporteComponent.vue';
+import sensores from './components/SensoresComponent.vue';
 import { vDraggable } from './draggable';
 
 window.db = new Dexie('db_pagos_reportes');
@@ -20,7 +21,8 @@ createApp({
         pagos,
         buscar_pagos,
         reportes,
-        buscar_reportes
+        buscar_reportes,
+        sensores
     },
     data(){
         return{
@@ -29,7 +31,9 @@ createApp({
                 buscar_pagos:{mostrar:false},
 
                 reportes:{mostrar:false},
-                buscar_reportes:{mostrar:false}
+                buscar_reportes:{mostrar:false},
+
+                sensores:{mostrar:false}
             }
         };
     },

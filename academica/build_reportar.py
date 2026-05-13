@@ -1,15 +1,19 @@
-@extends('layouts.public')
+import os
+
+content = """@extends('layouts.public')
 
 @section('title', 'Reportar un problema - HidroVida')
 
 @section('styles')
 <style>
+    /* Main Layout */
     .page-container {
         max-width: 900px;
         margin: 3rem auto 5rem auto;
         padding: 0 1.5rem;
     }
 
+    /* Typography */
     .section-title {
         font-size: 1.5rem;
         font-weight: 800;
@@ -23,6 +27,7 @@
         margin-bottom: 1.5rem;
     }
 
+    /* Category Buttons */
     .categories-grid {
         display: flex;
         gap: 1.5rem;
@@ -74,6 +79,7 @@
         background-color: #1b4b6b;
     }
 
+    /* Form Inputs */
     .form-group {
         margin-bottom: 2.5rem;
     }
@@ -195,80 +201,72 @@
     <form id="reporteForm" onsubmit="enviarReporte(event)">
         @csrf
         
-        
+        <!-- Categoría del problema -->
         <h2 class="section-title">Categoría del problema</h2>
         <p class="section-subtitle">Selecciona la categoría que mejor describe el problema</p>
         
         <div class="categories-grid">
-            
+            <!-- Agua sucia -->
             <label class="category-option">
                 <input type="radio" name="categoria" value="agua_sucia" checked>
                 <div class="category-label">
-                    <svg viewBox="0 0 100 100" width="60" height="60">
-                        
-                        <path d="M50 10 C50 10, 20 45, 20 65 A30 30 0 0 0 80 65 C80 45, 50 10, 50 10 Z" fill="white"></path>
-                        
-                        <path d="M55 85 A20 20 0 0 0 72 65" fill="none" stroke="#255f84" stroke-width="6" stroke-linecap="round"></path>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-5.5c-.5 1.5-2 3.9-4 5.5S5 13 5 15a7 7 0 0 0 7 7z"></path>
                     </svg>
                     Agua sucia
                 </div>
             </label>
 
-            
+            <!-- Sin agua -->
+            <label class="category-option">
+                <input type="radio" name="categoria" value="sin_agua">
+                <div class="category-label">
+                    <svg viewBox="0 0 24 24">
+                        <!-- Custom icon for water drop with X -->
+                        <path d="M12 2C12 2 7 9 7 14A5 5 0 0 0 17 14C17 12.5 16.2 10.5 15 8" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"></path>
+                        <line x1="13" y1="17" x2="19" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"></line>
+                        <line x1="19" y1="17" x2="13" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"></line>
+                    </svg>
+                    Sin agua
+                </div>
+            </label>
+
+            <!-- Mal olor -->
             <label class="category-option">
                 <input type="radio" name="categoria" value="mal_olor">
                 <div class="category-label">
-                    <svg viewBox="0 0 100 100" width="60" height="60">
-                        
-                        <path d="M25 80 C 15 60, 45 40, 30 10 C 40 30, 10 50, 25 80 Z" fill="white"></path>
-                        <path d="M50 90 C 40 70, 70 50, 55 20 C 65 40, 35 60, 50 90 Z" fill="white"></path>
-                        <path d="M75 80 C 65 60, 95 40, 80 10 C 90 30, 60 50, 75 80 Z" fill="white"></path>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                        <path d="M8 4c0 3-4 6-4 10a4 4 0 0 0 8 0c0-3-4-6-4-10z"></path>
+                        <path d="M16 8c0 2.5-3 5-3 8.5a3.5 3.5 0 0 0 7 0C20 13 17 10.5 16 8z"></path>
                     </svg>
                     Mal olor
                 </div>
             </label>
 
-            
+            <!-- Tubería rota -->
             <label class="category-option">
                 <input type="radio" name="categoria" value="tuberia_rota">
                 <div class="category-label">
-                    <svg viewBox="0 0 100 100" width="60" height="60">
-                        
-                        <path d="M10 35 H45 L55 45 L40 55 H10 Z" fill="white"></path>
-                        <path d="M10 25 H15 V65 H10 Z" fill="white"></path>
-                        
-                        <path d="M90 35 H60 L50 45 L65 55 H90 Z" fill="white"></path>
-                        <path d="M90 25 H85 V65 H90 Z" fill="white"></path>
-                        
-                        <path d="M50 65 C50 65, 42 80, 42 88 A8 8 0 0 0 58 88 C58 80, 50 65, 50 65 Z" fill="white"></path>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                        <rect x="2" y="8" width="20" height="8" rx="1"></rect>
+                        <line x1="10" y1="6" x2="10" y2="18"></line>
+                        <line x1="14" y1="6" x2="14" y2="18"></line>
+                        <path d="M12 16v4" stroke-width="2"></path>
+                        <circle cx="12" cy="22" r="1.5" fill="white" stroke="none"></circle>
                     </svg>
                     Tubería rota
                 </div>
             </label>
-
-            
-            <label class="category-option">
-                <input type="radio" name="categoria" value="sin_agua">
-                <div class="category-label">
-                    <svg viewBox="0 0 100 100" width="60" height="60">
-                        
-                        <path d="M40 10 C40 10, 15 45, 15 65 A25 25 0 0 0 52 89" fill="#e6e6e6"></path>
-                        
-                        <path d="M60 55 L90 85 M90 55 L60 85" fill="none" stroke="#e6e6e6" stroke-width="12" stroke-linecap="round"></path>
-                    </svg>
-                    Sin agua
-                </div>
-            </label>
         </div>
 
-        
+        <!-- Detalles del problema -->
         <div class="form-group">
             <h2 class="section-title">Detalles del problema *</h2>
             <p class="section-subtitle">Cuentanos más detalles ¿Qué sucedio específicamente?</p>
             <textarea id="descripcion" name="descripcion" class="custom-input" placeholder="Cuentanos mas detalles ¿que sucedio especificamente?"></textarea>
         </div>
 
-        
+        <!-- Ubicación -->
         <div class="form-group">
             <h2 class="section-title">Ubicación *</h2>
             <p class="section-subtitle">Indica el lugar donde ocurre el problema</p>
@@ -278,20 +276,20 @@
             </div>
         </div>
 
-        
+        <!-- Contacto -->
         <div class="form-group">
             <h2 class="section-title">Tu información de contacto *</h2>
             <p class="section-subtitle">Para que podamos informarte sobre el seguimiento</p>
             <input type="text" id="contacto" name="Informacion_de_contacto" class="custom-input" placeholder="Tu nombre y telefono">
         </div>
 
-        
+        <!-- Action Buttons -->
         <div class="actions-row">
             <button type="submit" class="btn-send" id="btnSubmit">ENVIAR</button>
             <button type="reset" class="btn-cancel">CANCELAR</button>
         </div>
 
-        
+        <!-- Info Banner -->
         <div class="info-banner">
             <i class="bi bi-shield-check"></i>
             <span>La directiva recibira el mensaje inmediatamente. Un encargado se comunicara contigo para el seguimiento</span>
@@ -300,7 +298,7 @@
     </form>
 </div>
 
-
+<!-- AlertifyJS -->
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css"/>
 <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
@@ -368,3 +366,8 @@
     }
 </script>
 @endsection
+"""
+
+with open('resources/views/reportar.blade.php', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Done writing reportar.blade.php')

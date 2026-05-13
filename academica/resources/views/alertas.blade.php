@@ -1,205 +1,170 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Avisos de corte - HidroVida</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@extends('layouts.public')
+
+@section('title', 'Alertas y Avisos - HidroVida')
+
+@section('styles')
+<style>
+    .page-container {
+        max-width: 900px;
+        margin: 3rem auto 5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .alert-card {
+        border-radius: 12px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
     
-    <style>
-        :root {
-            --primary-dark: #1b3650;
-            --text-dark: #333333;
-            --alert-red-bg: #ffffff;
-            --alert-red-border: #ef4444;
-            --alert-red-text: #ef4444;
-            --alert-yellow-bg: #fffde7;
-            --alert-yellow-border: #fbbf24;
-            --alert-yellow-text: #1b3650;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f8fafc; color: var(--text-dark); -webkit-font-smoothing: antialiased; }
-        
-        /* Header Layout */
-        .header {
-            background-color: var(--primary-dark);
-            color: white;
-            padding: 1rem 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .header-logo {
-            color: white;
-            font-size: 1.8rem;
-            text-decoration: none;
-            transition: transform 0.2s;
-        }
-        .header-logo:hover {
-            transform: scale(1.1);
-            color: #e0f2fe;
-        }
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        .btn-register {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1.2rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-register:hover {
-            background-color: rgba(255, 255, 255, 0.25);
-            transform: scale(1.05);
-        }
+    .alert-icon-wrapper {
+        flex-shrink: 0;
+        width: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .alert-icon-wrapper svg {
+        width: 80px;
+        height: 80px;
+    }
 
-        /* Main Content */
-        .main-container {
-            max-width: 800px;
-            margin: 3rem auto;
-            padding: 0 1.5rem;
-        }
+    .alert-content {
+        flex: 1;
+        font-size: 1.05rem;
+        color: #1b3650;
+        line-height: 1.5;
+    }
 
+    .alert-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-bottom: 0.2rem;
+    }
+
+    .alert-subtitle {
+        font-weight: 800;
+        margin-bottom: 0.2rem;
+    }
+
+    .alert-meta {
+        margin-bottom: 1rem;
+    }
+
+    .alert-meta span {
+        display: block;
+    }
+
+    .alert-description {
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .card-red {
+        background-color: #ede2e2;
+        border: 2px solid #d84545;
+    }
+    .card-red .alert-title {
+        color: #d84545;
+    }
+    .card-red .alert-content {
+        color: #000000;
+    }
+    .card-red .alert-icon-wrapper svg {
+        fill: #ff0000;
+    }
+
+    .card-yellow {
+        background-color: #f1f3d3;
+        border: 2px solid #e1cf1c;
+    }
+    .card-yellow .alert-title {
+        color: #1b3650;
+    }
+    .card-yellow .alert-content {
+        color: #1b3650;
+    }
+    .card-yellow .alert-icon-wrapper svg {
+        fill: #eada14;
+    }
+
+    .card-blue {
+        background-color: #bcd0de;
+        border: 2px solid transparent;
+    }
+    .card-blue .alert-title {
+        color: #000000;
+    }
+    .card-blue .alert-content {
+        color: #000000;
+    }
+    .card-blue .alert-icon-wrapper svg {
+        fill: #000000;
+    }
+
+    @media (max-width: 768px) {
         .alert-card {
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: transform 0.3s ease;
-        }
-        .alert-card:hover {
-            transform: translateY(-5px);
-        }
-        .alert-card-left {
-            display: flex;
             flex-direction: column;
+            text-align: left;
+            align-items: flex-start;
             gap: 1rem;
+            padding: 1.5rem;
         }
-        .alert-title {
-            font-size: 1.3rem;
-            font-weight: 800;
+        .alert-icon-wrapper {
+            width: auto;
         }
-        .alert-details {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            font-weight: 500;
+        .alert-icon-wrapper svg {
+            width: 50px;
+            height: 50px;
         }
-        .alert-icon {
-            font-size: 3.5rem;
-        }
+    }
+</style>
+@endsection
 
-        /* Alert Variants */
-        .alert-red {
-            background-color: var(--alert-red-bg);
-            border: 2px solid var(--alert-red-border);
-            color: var(--alert-red-text);
-        }
-        .alert-red .alert-title, .alert-red .alert-details {
-            color: var(--alert-red-text);
-        }
-        .alert-red .alert-icon {
-            color: var(--alert-red-border);
-        }
+@section('content')
+<div class="page-container">
 
-        .alert-yellow {
-            background-color: var(--alert-yellow-bg);
-            border: 2px solid var(--alert-yellow-border);
-            color: var(--alert-yellow-text);
-        }
-        .alert-yellow .alert-title {
-            color: var(--alert-yellow-text);
-        }
-        .alert-yellow .alert-details {
-            color: var(--alert-yellow-text);
-            opacity: 0.9;
-        }
-        .alert-yellow .alert-icon {
-            color: var(--alert-yellow-border);
-        }
-
-        @media (max-width: 768px) {
-            .header { padding: 1rem; }
-            .alert-card {
-                flex-direction: column-reverse;
-                text-align: center;
-                gap: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <a href="/" class="header-logo" title="Volver al inicio">
-            <i class="bi bi-house-door-fill"></i>
-        </a>
-        <div class="header-title">Avisos de corte de agua</div>
-        @if(session()->has('usuario_nombre'))
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span style="color: white; font-weight: 600; font-size: 0.95rem;">
-                    <i class="bi bi-person-circle"></i> {{ ucfirst(session('usuario_nombre')) }}
-                </span>
-                <a href="/logout" class="btn-register" style="text-decoration: none; background: rgba(231, 76, 60, 0.8); border-color: rgba(231, 76, 60, 0.4);">
-                    Salir <i class="bi bi-box-arrow-right ms-1"></i>
-                </a>
-            </div>
-        @else
-            <a href="/login" class="btn-register" style="text-decoration: none;">
-                <i class="bi bi-person-fill"></i>
-                Registrate
-            </a>
-        @endif
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-container">
-        <!-- Card 1 -->
-        <div class="alert-card alert-red">
-            <div class="alert-card-left">
-                <div class="alert-title">Corte programado para hoy</div>
-                <div class="alert-details">
-                    Martes 22 de abril de 8:00 AM - 2:00PM<br>
-                    Zonas afectadas: zona norte<br>
-                    Motivo: fuga de agua a gran escala
+    @if(count($alertas) == 0)
+        <div class="text-center" style="padding: 4rem; color: #6a8ba3;">
+            <i class="bi bi-bell-slash" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+            <h4>No hay alertas activas en este momento.</h4>
+        </div>
+    @else
+        @foreach($alertas as $alerta)
+            <div class="alert-card card-{{ $alerta->tipo }}">
+                <div class="alert-icon-wrapper">
+                    @if($alerta->tipo == 'red')
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L1 21h22L12 2zm0 3.8l7.5 13.2H4.5L12 5.8z" fill="none"/>
+                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    @else
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                        <path d="M22 13c0-3.5-1.5-6.6-3.8-8.7l-1.4 1.4C18.6 7.4 20 9.8 20 13h2z" fill="#eada14" />
+                        <path d="M5.8 5.7L4.4 4.3C2.1 6.4 0.6 9.5 0.6 13h2c0-3.2 1.4-5.6 3.2-7.3z" fill="#eada14" />
+                    </svg>
+                    @endif
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">{{ $alerta->titulo }}</div>
+                    <div class="alert-subtitle">{{ $alerta->fecha_texto }}</div>
+                    <div class="alert-meta">
+                        <span><strong>Zona afectada:</strong> {{ $alerta->zona }}</span>
+                        <span><strong>Motivo:</strong> {{ $alerta->motivo }}</span>
+                    </div>
+                    @if($alerta->descripcion)
+                    <p class="alert-description">
+                        {{ $alerta->descripcion }}
+                    </p>
+                    @endif
                 </div>
             </div>
-            <div class="alert-icon">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
-        </div>
+        @endforeach
+    @endif
 
-        <!-- Card 2 -->
-        <div class="alert-card alert-yellow">
-            <div class="alert-card-left">
-                <div class="alert-title">Corte proxima semana</div>
-                <div class="alert-details">
-                    Lunes 28 de abril todo el dia<br>
-                    Zona afectada: Todo el canton<br>
-                    Motivo: Mantenimiento de tuberia principal
-                </div>
-            </div>
-            <div class="alert-icon">
-                <i class="bi bi-bell-fill"></i>
-            </div>
-        </div>
-    </main>
-</body>
-</html>
+</div>
+@endsection

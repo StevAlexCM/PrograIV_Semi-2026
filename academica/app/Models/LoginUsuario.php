@@ -13,9 +13,12 @@ class LoginUsuario extends Model
     protected $primaryKey = 'id_usuario';
     
     protected $fillable = [
+        'nombre_completo',
         'correo_usuario',
+        'sector_zona',
         'contraseña',
-        'is_active'
+        'is_active',
+        'rol'
     ];
 
     // Para evitar que la contraseña se muestre en consultas (opcional)

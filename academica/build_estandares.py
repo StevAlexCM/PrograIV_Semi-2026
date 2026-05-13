@@ -1,4 +1,4 @@
-@extends('layouts.public')
+content = """@extends('layouts.public')
 
 @section('title', 'Información y Estándares - HidroVida')
 
@@ -8,6 +8,9 @@
         max-width: 900px;
         margin: 3rem auto 5rem auto;
         padding: 0 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
     }
 
     /* Info Card */
@@ -18,7 +21,6 @@
         display: flex;
         align-items: center;
         gap: 3rem;
-        margin-bottom: 2.5rem;
     }
     
     .card-icon {
@@ -144,13 +146,13 @@
 @section('content')
 <div class="page-container">
     
-    
+    <!-- Card 1: Qué significa el color -->
     <div class="info-card">
         <div class="card-icon">
-            
+            <!-- Water drop icon -->
             <svg viewBox="0 0 100 100">
                 <path d="M50 10 C50 10, 20 45, 20 65 A30 30 0 0 0 80 65 C80 45, 50 10, 50 10 Z" fill="#1b3650"></path>
-                
+                <!-- Crescent detail inside the drop (like user's SVG but cut out or lighter) -->
                 <path d="M55 85 A20 20 0 0 0 72 65" fill="none" stroke="#eef8fb" stroke-width="4" stroke-linecap="round"></path>
             </svg>
         </div>
@@ -173,10 +175,10 @@
         </div>
     </div>
 
-    
+    <!-- Card 2: Qué es el pH -->
     <div class="info-card">
         <div class="card-icon">
-            
+            <!-- Water drop icon -->
             <svg viewBox="0 0 100 100">
                 <path d="M50 10 C50 10, 20 45, 20 65 A30 30 0 0 0 80 65 C80 45, 50 10, 50 10 Z" fill="#1b3650"></path>
                 <path d="M55 85 A20 20 0 0 0 72 65" fill="none" stroke="#eef8fb" stroke-width="4" stroke-linecap="round"></path>
@@ -210,13 +212,13 @@
         </div>
     </div>
 
-    
+    <!-- Card 3: Qué es el cloro -->
     <div class="info-card">
         <div class="card-icon">
-            
+            <!-- Flask icon -->
             <svg viewBox="0 0 100 100">
                 <path d="M40 15 h20 v20 l25 45 a8 8 0 0 1 -7 10 h-56 a8 8 0 0 1 -7 -10 l25 -45 v-20 z" fill="#1b3650"></path>
-                
+                <!-- Flask top lip -->
                 <path d="M35 15 h30 v-5 h-30 z" fill="#1b3650"></path>
             </svg>
         </div>
@@ -248,7 +250,7 @@
         </div>
     </div>
 
-    
+    <!-- Banner Info -->
     <div class="info-banner">
         <i class="bi bi-shield-check"></i>
         <span>Estos valores estan basados en las recomendaciones del Ministerio de Salud(MINSAL) y la Organizacion Mundial de la Saud(OMS).</span>
@@ -256,3 +258,8 @@
 
 </div>
 @endsection
+"""
+
+with open('resources/views/estandares.blade.php', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Updated Estandares')
