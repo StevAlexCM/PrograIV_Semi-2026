@@ -310,10 +310,8 @@
         e.preventDefault();
 
         @if(!session()->has('usuario_id') && !session()->has('admin_id'))
-        if (localStorage.getItem('reporte_enviado')) {
-            alertify.alert('Registro necesario', 'Solo puedes enviar un reporte sin estar registrado. Por favor, regístrate para enviar más reportes y darles seguimiento.');
-            return;
-        }
+        window.location.href = '/login';
+        return;
         @endif
 
         const btnSubmit = document.getElementById('btnSubmit');

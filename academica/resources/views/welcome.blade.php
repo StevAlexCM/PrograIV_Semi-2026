@@ -371,7 +371,7 @@
             <div class="tips-section mb-5">
                 <h3 style="color: #1a5c8b; font-weight: 800; margin-bottom: 2rem;">Consejos para el cuidado del agua</h3>
                 <div class="d-flex align-items-center justify-content-between gap-3">
-                    <button class="btn btn-link p-0" style="font-size: 3rem; color: #1a5c8b;"><i class="bi bi-chevron-left"></i></button>
+                    
                     
                     <div class="row w-100 mx-0">
                         <div class="col-md-4 px-2">
@@ -385,7 +385,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-link p-0" style="font-size: 3rem; color: #1a5c8b;"><i class="bi bi-chevron-right"></i></button>
+                    
                 </div>
             </div>
 
