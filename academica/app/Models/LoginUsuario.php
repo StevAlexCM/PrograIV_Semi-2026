@@ -21,7 +21,6 @@ class LoginUsuario extends Model
         'rol'
     ];
 
-    // Para evitar que la contraseña se muestre en consultas (opcional)
     protected $hidden = [
         'contraseña',
     ];

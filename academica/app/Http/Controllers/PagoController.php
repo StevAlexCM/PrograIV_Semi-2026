@@ -36,7 +36,7 @@ class PagoController extends Controller
     public function destroy(Request $request)
     {
         try {
-            // The request might have id_pago in the payload instead of URL
+            
             $pago = Pago::findOrFail($request->id_pago);
             $pago->delete();
             return response()->json(['msg' => 'ok']);

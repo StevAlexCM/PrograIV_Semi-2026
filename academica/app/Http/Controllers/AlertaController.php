@@ -6,5 +6,5 @@ use Illuminate\Http\Request;
 
 class AlertaController extends Controller
 {
-    //
+    
 }

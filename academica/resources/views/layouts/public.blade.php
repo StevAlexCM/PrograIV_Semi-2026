@@ -49,7 +49,7 @@
         .header {
             background-color: #6fa1c0;
             color: white;
-            padding: 1.2rem 4rem;
+            padding: 0.5rem 4rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -130,7 +130,7 @@
         
         <header class="header">
             <a href="/" class="header-logo">
-                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 50px; width: auto;">
+                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 70px; width: auto;">
             </a>
             
             <nav class="header-nav">
@@ -205,7 +205,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <a href="/" class="footer-logo">
-                            <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 60px; width: auto; object-fit: contain;">
+                            <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 85px; width: auto; object-fit: contain;">
                         </a>
                         <p class="footer-logo-desc">Comprometidos con la calidad del agua y bienestar de nuestra comunidad</p>
                     </div>

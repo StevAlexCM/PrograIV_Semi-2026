@@ -124,8 +124,8 @@
     $nivel = isset($sensor) ? $sensor->water_level : 75;
     $time_ago = isset($sensor) ? str_replace('hace ', 'Hace ', $sensor->updated_at->diffForHumans()) : 'Hace 5 minutos';
     
-    // Logic for pH
-    $statusColor = '#40c41d'; // Verde
+    
+    $statusColor = '#40c41d'; 
     $statusText = 'Normal - Segura';
     $statusIcon = 'bi-check-circle';
 
@@ -134,11 +134,11 @@
         $statusText = 'Normal - Segura';
         $statusIcon = 'bi-check-circle';
     } elseif (($ph >= 6.0 && $ph < 6.5) || ($ph > 8.5 && $ph <= 9.0)) {
-        $statusColor = '#dfc214'; // Amarillo
+        $statusColor = '#dfc214'; 
         $statusText = 'Revisar';
         $statusIcon = 'bi-exclamation-triangle';
     } else {
-        $statusColor = '#ff0000'; // Rojo
+        $statusColor = '#ff0000'; 
         $statusText = 'No apta para consumo';
         $statusIcon = 'bi-x-octagon';
     }

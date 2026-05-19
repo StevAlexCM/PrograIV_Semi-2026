@@ -55,7 +55,7 @@
         color: #1b3650;
     }
 
-    /* Standard Legends (OMS/MINSAL) */
+    
     .standards-row {
         display: flex;
         align-items: center;
@@ -196,6 +196,7 @@
                         </svg>
                     </div>
                     MINSAL: 6.5 - 8.5
+                    <a href="https://www.salud.gob.sv" class="text-decoration-none text-black">MINSAL</a>
                 </div>
                 <div class="standard-item standard-oms">
                     <div class="standard-icon">
@@ -205,6 +206,7 @@
                         </svg>
                     </div>
                     OMS: 6.5 - 8.5
+                    <a href="https://www.who.int/es/news-room/fact-sheets/detail/drinking-water" class="text-decoration-none text-black">OMS</a>
                 </div>
             </div>
         </div>
@@ -233,7 +235,8 @@
                             <path d="M8 12l3 3 5-6"></path>
                         </svg>
                     </div>
-                    MINSAL: 0.3 - 1.5 mg/L
+                    MINSAL: 0.3 - 1.5 mg/L 
+                    <a href="https://www.salud.gob.sv" class="text-decoration-none text-black">MINSAL</a>
                 </div>
                 <div class="standard-item standard-oms">
                     <div class="standard-icon">
@@ -242,7 +245,7 @@
                             <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                         </svg>
                     </div>
-                    OMS: 0.2 - 1.0 mg/L
+                    OMS: 0.2 - 1.0 mg/L 
                 </div>
             </div>
         </div>

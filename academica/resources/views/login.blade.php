@@ -259,7 +259,7 @@
         <div class="login-box">
             
             <div class="logo-area">
-                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 100px; margin-bottom: 1rem;">
+                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 130px; margin-bottom: 1rem;">
             </div>
 
             <div class="form-subtitle">

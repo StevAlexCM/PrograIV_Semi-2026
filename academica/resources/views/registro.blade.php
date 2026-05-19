@@ -86,7 +86,7 @@
             margin-bottom: 1rem;
         }
         .logo-area img {
-            height: 80px;
+            height: 110px;
             width: auto;
         }
         
