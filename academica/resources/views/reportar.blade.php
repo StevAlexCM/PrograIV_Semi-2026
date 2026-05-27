@@ -282,7 +282,14 @@
         <div class="form-group">
             <h2 class="section-title">Tu información de contacto *</h2>
             <p class="section-subtitle">Para que podamos informarte sobre el seguimiento</p>
-            <input type="text" id="contacto" name="Informacion_de_contacto" class="custom-input" placeholder="Tu nombre y telefono">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" id="nombre_contacto" name="nombre_contacto" class="custom-input" placeholder="Nombre completo">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="telefono_contacto" name="telefono_contacto" class="custom-input" placeholder="Número de teléfono">
+                </div>
+            </div>
         </div>
 
         
@@ -318,18 +325,29 @@
         const form = document.getElementById('reporteForm');
         
         const formData = new FormData(form);
+        const nombre = formData.get('nombre_contacto') ? formData.get('nombre_contacto').trim() : '';
+        const telefono = formData.get('telefono_contacto') ? formData.get('telefono_contacto').trim() : '';
+
+        if (!nombre) {
+            alertify.error('Por favor ingresa tu nombre.');
+            return;
+        }
+        if (!telefono) {
+            alertify.error('Por favor ingresa tu número de teléfono.');
+            return;
+        }
+        if (!formData.get('sector_manzana_calle')) {
+            alertify.error('Por favor ingresa tu ubicación.');
+            return;
+        }
+
         const data = {
             categoria_de_problema: formData.get('categoria'),
             descripcion: formData.get('descripcion'),
             numero_casa: 'N/A', // Set to N/A as requested by new design 
             sector_manzana_calle: formData.get('sector_manzana_calle'),
-            Informacion_de_contacto: formData.get('Informacion_de_contacto')
+            Informacion_de_contacto: `${nombre} - ${telefono}`
         };
-
-        if (!data.sector_manzana_calle) {
-            alertify.error('Por favor ingresa tu ubicación.');
-            return;
-        }
 
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = 'Enviando...';
