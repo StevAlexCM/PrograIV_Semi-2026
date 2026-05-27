@@ -101,7 +101,7 @@
                                 <textarea v-model="alerta.descripcion" class="form-control bg-light" rows="2"></textarea>
                             </div>
 
-                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-medium shadow-sm">
+                            <button type="submit" class="btn w-100 rounded-pill fw-medium shadow-sm" :class="alerta.tipo === 'red' ? 'btn-danger text-white' : (alerta.tipo === 'blue' ? 'btn-primary text-white' : 'btn-warning text-dark')">
                                 <i class="bi bi-megaphone me-1"></i> Publicar Alerta
                             </button>
                         </form>

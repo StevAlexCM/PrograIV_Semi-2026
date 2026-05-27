@@ -92,17 +92,17 @@
     }
 
     .card-blue {
-        background-color: #bcd0de;
-        border: 2px solid transparent;
+        background-color: #eef6fc;
+        border: 2px solid #299bc4;
     }
     .card-blue .alert-title {
-        color: #000000;
+        color: #1a5c8b;
     }
     .card-blue .alert-content {
-        color: #000000;
+        color: #1b3650;
     }
     .card-blue .alert-icon-wrapper svg {
-        fill: #000000;
+        fill: #299bc4;
     }
 
     @media (max-width: 768px) {
@@ -141,6 +141,10 @@
                         <path d="M12 2L1 21h22L12 2zm0 3.8l7.5 13.2H4.5L12 5.8z" fill="none"/>
                         <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
                     </svg>
+                    @elseif($alerta->tipo == 'blue')
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
                     @else
                     <svg viewBox="0 0 24 24">
                         <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
@@ -151,7 +155,17 @@
                 </div>
                 <div class="alert-content">
                     <div class="alert-title">{{ $alerta->titulo }}</div>
-                    <div class="alert-subtitle">{{ $alerta->fecha_texto }}</div>
+                    @php
+                        $fechaDisplay = $alerta->fecha_texto;
+                        try {
+                            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
+                                $date = \Carbon\Carbon::parse($alerta->fecha_texto);
+                                $fechaDisplay = $date->isoFormat('dddd D [de] MMMM, h:mm A');
+                                $fechaDisplay = ucfirst($fechaDisplay);
+                            }
+                        } catch (\Exception $e) {}
+                    @endphp
+                    <div class="alert-subtitle">{{ $fechaDisplay }}</div>
                     <div class="alert-meta">
                         <span><strong>Zona afectada:</strong> {{ $alerta->zona }}</span>
                         <span><strong>Motivo:</strong> {{ $alerta->motivo }}</span>

@@ -17,15 +17,70 @@ use App\Http\Controllers\ReporteController;
 
 Route::get('/', function () {
     $sensor = App\Models\SensorReading::latest()->first() ?? new App\Models\SensorReading(['ph_level' => 7.2, 'water_level' => 75]);
-    $alerta_roja = App\Models\Alerta::where('tipo', 'red')->latest()->first();
-    return view('welcome', compact('sensor', 'alerta_roja'));
+    
+    // Fetch highest priority alert (using proximity escalation logic)
+    $alerta_prioritaria = App\Models\Alerta::all()->map(function ($alerta) {
+        try {
+            if ($alerta->tipo !== 'blue' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
+                $targetDate = \Carbon\Carbon::parse($alerta->fecha_texto);
+                $now = \Carbon\Carbon::now();
+                $diffInHours = $now->diffInHours($targetDate, false);
+                if ($diffInHours <= 48) {
+                    $alerta->tipo = 'red';
+                }
+            }
+        } catch (\Exception $e) {}
+        return $alerta;
+    })->sort(function ($a, $b) {
+        $rank = ['red' => 1, 'yellow' => 2, 'blue' => 3];
+        $rankA = $rank[$a->tipo] ?? 4;
+        $rankB = $rank[$b->tipo] ?? 4;
+        if ($rankA === $rankB) {
+            return $b->created_at <=> $a->created_at;
+        }
+        return $rankA <=> $rankB;
+    })->first();
+
+    // Fetch the logged-in user's latest payment receipt
+    $ultimo_recibo = null;
+    if (session()->has('usuario_id')) {
+        $ultimo_recibo = App\Models\Pago::where('id_usuario', session('usuario_id'))
+                                         ->orderBy('created_at', 'desc')
+                                         ->first();
+    }
+
+    // Recent alerts feed
+    $alertas_recientes = App\Models\Alerta::latest()->take(3)->get();
+
+    return view('welcome', compact('sensor', 'alerta_prioritaria', 'ultimo_recibo', 'alertas_recientes'));
 });
 Route::get('/calidad', function () {
     $sensor = App\Models\SensorReading::latest()->first() ?? new App\Models\SensorReading(['ph_level' => 7.2, 'water_level' => 75]);
     return view('calidad', compact('sensor'));
 });
 Route::get('/alertas', function () {
-    $alertas = App\Models\Alerta::latest()->get();
+    $alertas = App\Models\Alerta::all()->map(function ($alerta) {
+        try {
+            if ($alerta->tipo !== 'blue' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
+                $targetDate = \Carbon\Carbon::parse($alerta->fecha_texto);
+                $now = \Carbon\Carbon::now();
+                $diffInHours = $now->diffInHours($targetDate, false);
+                if ($diffInHours <= 48) {
+                    $alerta->tipo = 'red';
+                }
+            }
+        } catch (\Exception $e) {}
+        return $alerta;
+    })->sort(function ($a, $b) {
+        $rank = ['red' => 1, 'yellow' => 2, 'blue' => 3];
+        $rankA = $rank[$a->tipo] ?? 4;
+        $rankB = $rank[$b->tipo] ?? 4;
+        if ($rankA === $rankB) {
+            return $b->created_at <=> $a->created_at;
+        }
+        return $rankA <=> $rankB;
+    })->values();
+
     return view('alertas', compact('alertas'));
 });
 Route::get('/reportar', function () {
@@ -58,7 +113,7 @@ Route::post('/login', function (Illuminate\Http\Request $request) {
             'admin_id' => $admin->id_usuario,
             'usuario_nombre' => $admin->nombre_admin
         ]);
-        return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/')]);
+        return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/admin/dashboard')]);
     }
 
     // 2. Si no es admin, verificar si es un Usuario
@@ -68,11 +123,19 @@ Route::post('/login', function (Illuminate\Http\Request $request) {
 
     if ($usuario) {
         if ($usuario->is_active) {
-            // Guardamos sesión simple
             session([
                 'usuario_id' => $usuario->id_usuario,
-                'usuario_nombre' => explode('@', $usuario->correo_usuario)[0]
+                'usuario_nombre' => $usuario->nombre_completo ?? explode('@', $usuario->correo_usuario)[0]
             ]);
+
+            // Si el rol es admin, también asignarle permisos de administrador en sesión
+            if ($usuario->rol === 'admin') {
+                session([
+                    'admin_id' => $usuario->id_usuario
+                ]);
+                return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/admin/dashboard')]);
+            }
+
             return response()->json(['success' => true, 'message' => '¡Bienvenido a HidroVida!', 'url' => url('/')]);
         } else {
             return response()->json(['success' => false, 'message' => 'Tu cuenta está inactiva. Contacta al administrador.']);
@@ -102,8 +165,26 @@ Route::post('/login_admin', function (Illuminate\Http\Request $request) {
             'admin_id' => $admin->id_usuario,
             'usuario_nombre' => $admin->nombre_admin
         ]);
-        // Podrías redirigir a un dashboard específico de admin después
-        return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/')]);
+        return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/admin/dashboard')]);
+    }
+
+    // Permitir ingresar si es de la tabla LoginUsuario con rol 'admin'
+    $usuario = App\Models\LoginUsuario::where('correo_usuario', $credentials['correo_admin'])
+                                        ->where('contraseña', $credentials['contraseña_admin'])
+                                        ->where('rol', 'admin')
+                                        ->first();
+
+    if ($usuario) {
+        if ($usuario->is_active) {
+            session([
+                'usuario_id' => $usuario->id_usuario,
+                'admin_id' => $usuario->id_usuario,
+                'usuario_nombre' => $usuario->nombre_completo ?? explode('@', $usuario->correo_usuario)[0]
+            ]);
+            return response()->json(['success' => true, 'message' => '¡Bienvenido Administrador!', 'url' => url('/admin/dashboard')]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Tu cuenta está inactiva. Contacta al administrador.']);
+        }
     }
 
     return response()->json(['success' => false, 'message' => 'Credenciales administrativas incorrectas.']);
@@ -112,6 +193,95 @@ Route::post('/login_admin', function (Illuminate\Http\Request $request) {
 Route::get('/logout', function () {
     session()->forget(['usuario_id', 'admin_id', 'usuario_nombre']);
     return redirect('/');
+});
+
+// Admin Dashboard
+Route::get('/admin/dashboard', function () {
+    if (!session()->has('admin_id')) return redirect('/login_admin');
+    $sensor = App\Models\SensorReading::latest()->first() ?? new App\Models\SensorReading(['ph_level' => 7.2, 'water_level' => 75]);
+    return view('admin.dashboardadmin', compact('sensor'));
+})->name('admin.dashboard');
+
+Route::get('/admin/sensor-api', function () {
+    if (!session()->has('admin_id')) return response()->json(['error' => 'Unauthorized'], 401);
+    $sensor = App\Models\SensorReading::latest()->first() ?? new App\Models\SensorReading(['ph_level' => 7.2, 'water_level' => 75]);
+    $history = App\Models\SensorReading::latest()->take(15)->get()->reverse()->values();
+    return response()->json([
+        'sensor' => $sensor,
+        'history' => $history
+    ]);
+});
+
+Route::get('/admin/actividades-api', function () {
+    if (!session()->has('admin_id')) return response()->json(['error' => 'Unauthorized'], 401);
+    
+    $users = App\Models\LoginUsuario::latest()->take(5)->get();
+    $alerts = App\Models\Alerta::latest()->take(5)->get();
+    $sensors = App\Models\SensorReading::latest()->take(5)->get();
+    $reports = DB::table('reportes_falla')->orderBy('created_at', 'desc')->take(5)->get();
+    $payments = App\Models\Pago::latest()->take(5)->get();
+    
+    $activities = collect();
+    
+    foreach ($users as $user) {
+        $activities->push([
+            'titulo' => 'Usuario nuevo registrado',
+            'descripcion' => ($user->nombre_completo ?? 'Usuario') . ' (' . $user->correo_usuario . ')',
+            'tiempo' => $user->created_at ? $user->created_at->diffForHumans() : 'Recientemente',
+            'created_at' => $user->created_at ? $user->created_at->toIso8601String() : now()->toIso8601String(),
+            'icon' => 'bi-person-plus-fill',
+            'color' => 'text-primary bg-primary-subtle border-primary-subtle'
+        ]);
+    }
+    
+    foreach ($alerts as $alert) {
+        $activities->push([
+            'titulo' => 'Nueva alerta publicada',
+            'descripcion' => $alert->titulo . ' (' . $alert->zona . ')',
+            'tiempo' => $alert->created_at ? $alert->created_at->diffForHumans() : 'Recientemente',
+            'created_at' => $alert->created_at ? $alert->created_at->toIso8601String() : now()->toIso8601String(),
+            'icon' => 'bi-megaphone-fill',
+            'color' => 'text-danger bg-danger-subtle border-danger-subtle'
+        ]);
+    }
+    
+    foreach ($sensors as $sensor) {
+        $activities->push([
+            'titulo' => 'Lectura de sensores simulada',
+            'descripcion' => 'pH: ' . $sensor->ph_level . ' · Tanque: ' . $sensor->water_level . '%',
+            'tiempo' => $sensor->created_at ? $sensor->created_at->diffForHumans() : 'Recientemente',
+            'created_at' => $sensor->created_at ? $sensor->created_at->toIso8601String() : now()->toIso8601String(),
+            'icon' => 'bi-sliders',
+            'color' => 'text-success bg-success-subtle border-success-subtle'
+        ]);
+    }
+    
+    foreach ($reports as $report) {
+        $createdAt = Carbon\Carbon::parse($report->created_at);
+        $activities->push([
+            'titulo' => 'Reporte de falla recibido',
+            'descripcion' => $report->descripcion . ' (' . $report->sector_manzana_calle . ')',
+            'tiempo' => $createdAt->diffForHumans(),
+            'created_at' => $createdAt->toIso8601String(),
+            'icon' => 'bi-file-earmark-text-fill',
+            'color' => 'text-info bg-info-subtle border-info-subtle'
+        ]);
+    }
+
+    foreach ($payments as $payment) {
+        $activities->push([
+            'titulo' => 'Recibo de pago generado',
+            'descripcion' => 'Cuenta: #' . $payment->id_usuario . ' · Periodo: ' . $payment->mes_facturado . ' · Total: $' . number_format($payment->total_pagar, 2),
+            'tiempo' => $payment->created_at ? $payment->created_at->diffForHumans() : 'Recientemente',
+            'created_at' => $payment->created_at ? $payment->created_at->toIso8601String() : now()->toIso8601String(),
+            'icon' => 'bi-receipt-cutoff',
+            'color' => 'text-warning bg-warning-subtle border-warning-subtle'
+        ]);
+    }
+    
+    $sortedActivities = $activities->sortByDesc('created_at')->values()->take(10);
+    
+    return response()->json($sortedActivities);
 });
 
 // Admin Debug Sensores
@@ -192,7 +362,28 @@ Route::post('/admin/usuarios-rol-api', function (Illuminate\Http\Request $reques
 
 Route::get('/admin/alertas-api-list', function () {
     if (!session()->has('admin_id')) return response()->json([], 401);
-    return App\Models\Alerta::latest()->get();
+    $alertas = App\Models\Alerta::all()->map(function ($alerta) {
+        try {
+            if ($alerta->tipo !== 'blue' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
+                $targetDate = \Carbon\Carbon::parse($alerta->fecha_texto);
+                $now = \Carbon\Carbon::now();
+                $diffInHours = $now->diffInHours($targetDate, false);
+                if ($diffInHours <= 48) {
+                    $alerta->tipo = 'red';
+                }
+            }
+        } catch (\Exception $e) {}
+        return $alerta;
+    })->sort(function ($a, $b) {
+        $rank = ['red' => 1, 'yellow' => 2, 'blue' => 3];
+        $rankA = $rank[$a->tipo] ?? 4;
+        $rankB = $rank[$b->tipo] ?? 4;
+        if ($rankA === $rankB) {
+            return $b->created_at <=> $a->created_at;
+        }
+        return $rankA <=> $rankB;
+    })->values();
+    return response()->json($alertas);
 });
 
 Route::get('/admin/reportes-api-list', function () {
@@ -206,6 +397,55 @@ Route::delete('/admin/reportes-api/{id}', function ($id) {
     return response()->json(['success' => true]);
 });
 
+// Admin Billing endpoints
+Route::get('/admin/pagos/ultimo-registro/{id_usuario}', function ($id_usuario) {
+    if (!session()->has('admin_id')) return response()->json(['lectura_actual' => 0.00], 401);
+    $ultimo = App\Models\Pago::where('id_usuario', $id_usuario)
+                             ->orderBy('created_at', 'desc')
+                             ->orderBy('id_pago', 'desc')
+                             ->first();
+    return response()->json([
+        'lectura_actual' => $ultimo ? (float)$ultimo->lectura_actual : 0.00
+    ]);
+});
+
+Route::get('/admin/pagos-api-list', function () {
+    if (!session()->has('admin_id')) return response()->json([], 401);
+    return App\Models\Pago::orderBy('created_at', 'desc')->get();
+});
+
+Route::post('/admin/pagos-api', function (Illuminate\Http\Request $request) {
+    if (!session()->has('admin_id')) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    $request->validate([
+        'id_usuario' => 'required|integer',
+        'fecha_pago' => 'required',
+        'mes_facturado' => 'required|string',
+        'lectura_anterior' => 'required|numeric',
+        'lectura_actual' => 'required|numeric',
+        'consumo' => 'required|numeric',
+        'total_pagar' => 'required|numeric',
+    ]);
+    $p = App\Models\Pago::create($request->all());
+    return response()->json(['success' => true, 'message' => 'Recibo generado correctamente', 'data' => $p]);
+});
+
+Route::post('/admin/pagos-api/cambiar-estado', function (Illuminate\Http\Request $request) {
+    if (!session()->has('admin_id')) return response()->json(['success' => false], 401);
+    $p = App\Models\Pago::find($request->id_pago);
+    if ($p) {
+        $p->estado_pago = $request->estado_pago;
+        $p->save();
+        return response()->json(['success' => true]);
+    }
+    return response()->json(['success' => false]);
+});
+
+Route::delete('/admin/pagos-api/{id}', function ($id) {
+    if (!session()->has('admin_id')) return response()->json(['success' => false], 401);
+    App\Models\Pago::destroy($id);
+    return response()->json(['success' => true]);
+});
+
 Route::post('/admin/alertas-api', function (Illuminate\Http\Request $request) {
     if (!session()->has('admin_id')) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
     $a = new App\Models\Alerta();
@@ -216,7 +456,28 @@ Route::post('/admin/alertas-api', function (Illuminate\Http\Request $request) {
 
 Route::get('/admin/alertas-api', function () {
     if (!session()->has('admin_id')) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-    return response()->json(App\Models\Alerta::latest()->get());
+    $alertas = App\Models\Alerta::all()->map(function ($alerta) {
+        try {
+            if ($alerta->tipo !== 'blue' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
+                $targetDate = \Carbon\Carbon::parse($alerta->fecha_texto);
+                $now = \Carbon\Carbon::now();
+                $diffInHours = $now->diffInHours($targetDate, false);
+                if ($diffInHours <= 48) {
+                    $alerta->tipo = 'red';
+                }
+            }
+        } catch (\Exception $e) {}
+        return $alerta;
+    })->sort(function ($a, $b) {
+        $rank = ['red' => 1, 'yellow' => 2, 'blue' => 3];
+        $rankA = $rank[$a->tipo] ?? 4;
+        $rankB = $rank[$b->tipo] ?? 4;
+        if ($rankA === $rankB) {
+            return $b->created_at <=> $a->created_at;
+        }
+        return $rankA <=> $rankB;
+    })->values();
+    return response()->json($alertas);
 });
 
 Route::delete('/admin/alertas-api/{id}', function ($id) {

@@ -56,11 +56,11 @@
         }
         .header-logo {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            line-height: 1;
             text-decoration: none;
             color: white;
+            flex: 1 1 0%;
+            justify-content: flex-start;
         }
         .header-logo:hover { color: #e0f2fe; }
         .header-logo i { font-size: 2.2rem; margin-bottom: 2px; }
@@ -68,8 +68,14 @@
 
         .header-nav {
             display: flex;
-            gap: 2.5rem;
-            margin-left: 2rem;
+            gap: 4.5rem;
+            flex: 0 0 auto;
+        }
+        
+        .header-session {
+            flex: 1 1 0%;
+            display: flex;
+            justify-content: flex-end;
         }
         .nav-item {
             display: flex;
@@ -117,7 +123,9 @@
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 1rem; padding: 1rem; }
-            .header-nav { margin-left: 0; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+            .header-logo { flex: 0 1 auto; justify-content: center; }
+            .header-nav { margin: 0; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+            .header-session { flex: 0 1 auto; justify-content: center; }
             .custom-footer .row > div { margin-bottom: 2rem; text-align: center; }
             .footer-logo { align-items: center; }
         }
@@ -151,19 +159,15 @@
                 <a href="/alertas" class="nav-item {{ request()->is('alertas') ? 'active' : '' }}">
                     <i class="bi bi-bell-fill"></i>
                     <span>Alertas</span>
-                </a>
-                <a href="/estandares" class="nav-item {{ request()->is('estandares') ? 'active' : '' }}">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <span>Informacion</span>
-                </a>
+                
             </nav>
 
         @if(session()->has('usuario_nombre'))
-            <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="header-session" style="display: flex; align-items: center; gap: 1.5rem;">
                 @if(session()->has('admin_id'))
-                <a href="#" @click.prevent="abrirVentana('sensores')" class="nav-item" style="color: #f1c40f;">
-                    <i class="bi bi-sliders"></i>
-                    <span>Panel</span>
+                <a href="/admin/dashboard" class="nav-item {{ request()->is('admin/dashboard') ? 'active' : '' }}" style="color: #f1c40f;">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Panel Admin</span>
                 </a>
                 @endif
                 <span style="color: white; font-weight: 600; font-size: 0.95rem;">
@@ -175,7 +179,7 @@
                 </a>
             </div>
         @else
-            <a href="/login" class="nav-item">
+            <a href="/login" class="nav-item header-session">
                 <i class="bi bi-person-fill"></i>
                 <span>Iniciar sesión</span>
             </a>

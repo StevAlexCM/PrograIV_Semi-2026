@@ -12,6 +12,7 @@ import buscar_pagos from './components/BusquedaPagoComponent.vue';
 import reportes from './components/ReporteComponent.vue';
 import buscar_reportes from './components/BusquedaReporteComponent.vue';
 import sensores from './components/SensoresComponent.vue';
+import admin_dashboard from './components/DashboardAdminComponent.vue';
 import { vDraggable } from './draggable';
 
 window.db = new Dexie('db_pagos_reportes');
@@ -22,7 +23,8 @@ createApp({
         buscar_pagos,
         reportes,
         buscar_reportes,
-        sensores
+        sensores,
+        'admin-dashboard': admin_dashboard
     },
     data(){
         return{
