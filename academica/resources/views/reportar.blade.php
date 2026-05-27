@@ -274,7 +274,7 @@
             <p class="section-subtitle">Indica el lugar donde ocurre el problema</p>
             <div class="location-row">
                 <input type="text" id="sector_manzana_calle" name="sector_manzana_calle" class="custom-input" placeholder="Sector/casa/calle/referencia">
-                <button type="button" class="btn-location"><i class="bi bi-crosshair"></i> Usar mi ubicación</button>
+                <button type="button" class="btn-location" onclick="obtenerUbicacion()"><i class="bi bi-crosshair"></i> Usar mi ubicación</button>
             </div>
         </div>
 
@@ -363,6 +363,74 @@
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = 'ENVIAR';
         }
+    }
+
+    function obtenerUbicacion() {
+        const input = document.getElementById('sector_manzana_calle');
+        const btn = document.querySelector('.btn-location');
+        
+        if (!navigator.geolocation) {
+            alertify.error('La geolocalización no es compatible con este navegador.');
+            return;
+        }
+
+        const originalBtnContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Obteniendo...';
+        input.value = 'Obteniendo ubicación...';
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
+                        headers: {
+                            'Accept-Language': 'es'
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        input.value = data.display_name || `Lat: ${lat.toFixed(6)}, Lng: ${lon.toFixed(6)}`;
+                        alertify.success('Ubicación obtenida correctamente.');
+                    } else {
+                        input.value = `Lat: ${lat.toFixed(6)}, Lng: ${lon.toFixed(6)}`;
+                    }
+                } catch (error) {
+                    console.error('Error in reverse geocoding:', error);
+                    input.value = `Lat: ${lat.toFixed(6)}, Lng: ${lon.toFixed(6)}`;
+                    alertify.success('Coordenadas obtenidas (error al traducir dirección).');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnContent;
+                }
+            },
+            (error) => {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnContent;
+                input.value = '';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        alertify.error('Permiso denegado para obtener la ubicación.');
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alertify.error('La información de ubicación no está disponible.');
+                        break;
+                    case error.TIMEOUT:
+                        alertify.error('Tiempo de espera agotado al obtener la ubicación.');
+                        break;
+                    default:
+                        alertify.error('Ocurrió un error al obtener la ubicación.');
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
     }
 </script>
 @endsection
