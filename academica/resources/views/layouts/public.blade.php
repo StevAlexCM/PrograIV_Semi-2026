@@ -26,7 +26,7 @@
             --accent-teal: #2cc0b3;
             --alert-red: #ff5a5f;
             --text-dark: #163f5c;
-            --bg-color: #eef8fb; 
+            --bg-color: #e7f4fc; 
         }
 
         * {
@@ -84,13 +84,33 @@
             color: white;
             text-decoration: none;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             opacity: 0.8;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             gap: 0.3rem;
+            padding: 0.5rem 0.8rem;
+            position: relative;
         }
-        .nav-item i, .nav-item svg { font-size: 1.5rem; width: 24px; height: 24px; }
-        .nav-item:hover, .nav-item.active { opacity: 1; color: white; transform: translateY(-2px); }
+        .nav-item i, .nav-item svg, .nav-item img { font-size: 1.9rem; width: 32px; height: 32px; object-fit: contain; transition: transform 0.2s ease; }
+        .nav-item:hover {
+            opacity: 1;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            opacity: 1;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            width: 20px;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+        }
 
         /* Footer */
         .custom-footer {
@@ -138,28 +158,26 @@
         
         <header class="header">
             <a href="/" class="header-logo">
-                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 70px; width: auto;">
+                <img src="{{ asset('img/logo_blanco.svg') }}" alt="HidroVida Logo" style="width: 230px; height: 109px; object-fit: contain;">
             </a>
             
             <nav class="header-nav">
                 <a href="/" class="nav-item {{ request()->is('/') ? 'active' : '' }}">
-                    <i class="bi bi-house-door-fill"></i>
+                    <img src="{{ request()->is('/') ? asset('img/Component.svg') : asset('img/Inicio_blanco.svg') }}" alt="Inicio">
                     <span>Inicio</span>
                 </a>
                 <a href="/calidad" class="nav-item {{ request()->is('calidad') ? 'active' : '' }}">
-                    <i class="bi bi-droplet-fill"></i>
+                    <img src="{{ request()->is('calidad') ? asset('img/icon-gota_seleccionado.svg') : asset('img/icon-gota.svg') }}" alt="Calidad">
                     <span>Calidad</span>
                 </a>
                 <a href="/reportar" class="nav-item {{ request()->is('reportar') ? 'active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 4a5 5 0 0 0-5 5v3H5v4h14v-4h-2V9a5 5 0 0 0-5-5zm-3 8V9a3 3 0 0 1 6 0v3H9zm-2 6h10v2H7v-2zm5-16h-4v2h4V2z"/>
-                    </svg>
+                    <img src="{{ request()->is('reportar') ? asset('img/icon-reporte_seleccionado.svg') : asset('img/icon-reporte.svg') }}" alt="Reportes">
                     <span>Reportes</span>
                 </a>
                 <a href="/alertas" class="nav-item {{ request()->is('alertas') ? 'active' : '' }}">
-                    <i class="bi bi-bell-fill"></i>
+                    <img src="{{ request()->is('alertas') ? asset('img/icon-notificacion_seleccionado.svg') : asset('img/icon-notificacion.svg') }}" alt="Alertas">
                     <span>Alertas</span>
-                
+                </a>
             </nav>
 
         @if(session()->has('usuario_nombre'))
@@ -170,8 +188,8 @@
                     <span>Panel Admin</span>
                 </a>
                 @endif
-                <span style="color: white; font-weight: 600; font-size: 0.95rem;">
-                    <i class="bi bi-person-circle"></i> {{ ucfirst(session('usuario_nombre')) }}
+                <span style="color: white; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <img src="{{ asset('img/icon-perfil.svg') }}" alt="Perfil" style="width: 24px; height: 24px;"> {{ ucfirst(session('usuario_nombre')) }}
                 </span>
                 <a href="/logout" class="nav-item">
                     <i class="bi bi-box-arrow-right"></i>
@@ -179,8 +197,8 @@
                 </a>
             </div>
         @else
-            <a href="/login" class="nav-item header-session">
-                <i class="bi bi-person-fill"></i>
+            <a href="/login" class="nav-item header-session {{ request()->is('login') ? 'active' : '' }}">
+                <img src="{{ asset('img/icon-perfil.svg') }}" alt="Iniciar sesión">
                 <span>Iniciar sesión</span>
             </a>
         @endif
@@ -209,7 +227,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <a href="/" class="footer-logo">
-                            <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 85px; width: auto; object-fit: contain;">
+                            <img src="{{ asset('img/logo_blanco.svg') }}" alt="HidroVida Logo" style="height: 85px; width: auto; object-fit: contain;">
                         </a>
                         <p class="footer-logo-desc">Comprometidos con la calidad del agua y bienestar de nuestra comunidad</p>
                     </div>
@@ -248,6 +266,7 @@
         </footer>
     </div>
     @vite('resources/js/app.js')
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
     @yield('scripts')
 </body>
 </html>

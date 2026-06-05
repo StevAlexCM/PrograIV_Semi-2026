@@ -41,18 +41,24 @@ Route::get('/', function () {
         return $rankA <=> $rankB;
     })->first();
 
-    // Fetch the logged-in user's latest payment receipt
+    // Fetch the logged-in user's payment receipts history
+    $historial_recibos = collect();
     $ultimo_recibo = null;
+    $meses_sin_pagar = 0;
     if (session()->has('usuario_id')) {
-        $ultimo_recibo = App\Models\Pago::where('id_usuario', session('usuario_id'))
-                                         ->orderBy('created_at', 'desc')
-                                         ->first();
+        $historial_recibos = App\Models\Pago::where('id_usuario', session('usuario_id'))
+                                           ->orderBy('created_at', 'desc')
+                                           ->get();
+        $ultimo_recibo = $historial_recibos->first();
+        $meses_sin_pagar = App\Models\Pago::where('id_usuario', session('usuario_id'))
+                                         ->where('estado_pago', '!=', 'Pagado')
+                                         ->count();
     }
 
     // Recent alerts feed
     $alertas_recientes = App\Models\Alerta::latest()->take(3)->get();
 
-    return view('welcome', compact('sensor', 'alerta_prioritaria', 'ultimo_recibo', 'alertas_recientes'));
+    return view('welcome', compact('sensor', 'alerta_prioritaria', 'ultimo_recibo', 'historial_recibos', 'meses_sin_pagar', 'alertas_recientes'));
 });
 Route::get('/calidad', function () {
     $sensor = App\Models\SensorReading::latest()->first() ?? new App\Models\SensorReading(['ph_level' => 7.2, 'water_level' => 75]);
@@ -193,6 +199,20 @@ Route::post('/login_admin', function (Illuminate\Http\Request $request) {
 Route::get('/logout', function () {
     session()->forget(['usuario_id', 'admin_id', 'usuario_nombre']);
     return redirect('/');
+});
+
+Route::post('/api/pagos/pagar', function (Illuminate\Http\Request $request) {
+    if (!session()->has('usuario_id')) return response()->json(['success' => false, 'message' => 'No autorizado'], 401);
+    $request->validate(['id_pago' => 'required|integer']);
+    $p = App\Models\Pago::where('id_pago', $request->id_pago)
+                        ->where('id_usuario', session('usuario_id'))
+                        ->first();
+    if ($p) {
+        $p->estado_pago = 'Pagado';
+        $p->save();
+        return response()->json(['success' => true, 'message' => '¡Pago realizado con éxito!']);
+    }
+    return response()->json(['success' => false, 'message' => 'Recibo no encontrado']);
 });
 
 // Admin Dashboard

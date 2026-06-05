@@ -259,7 +259,7 @@
         <div class="login-box">
             
             <div class="logo-area">
-                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="HidroVida Logo" style="height: 130px; margin-bottom: 1rem;">
+                <img src="{{ asset('img/logo_blanco.svg') }}" alt="HidroVida Logo" style="height: 130px; margin-bottom: 1rem;">
             </div>
 
             <div class="form-subtitle">
@@ -362,8 +362,12 @@
                     success: function(response) {
                         if (response.success) {
                             alertify.success(response.message);
+                            
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirectUrl = urlParams.get('redirect');
+                            
                             setTimeout(function() {
-                                window.location.href = response.url;
+                                window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : response.url;
                             }, 1000);
                         } else {
                             alertify.error(response.message);

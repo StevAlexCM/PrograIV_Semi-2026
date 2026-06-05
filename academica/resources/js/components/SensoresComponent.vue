@@ -117,7 +117,7 @@
                             <div v-for="a in alertasList" :key="a.id" class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-2 border-start border-4" :class="'border-' + (a.tipo == 'red' ? 'danger' : (a.tipo == 'yellow' ? 'warning' : 'primary'))">
                                 <div>
                                     <strong class="d-block text-dark" style="font-size: 0.95rem;">{{ a.titulo }}</strong>
-                                    <small class="text-muted">{{ a.fecha_texto }}</small>
+                                    <small class="text-muted">{{ formatAlertFecha(a.fecha_texto) }}</small>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-danger" @click="borrarAlerta(a.id)">
                                     <i class="bi bi-trash"></i>
@@ -341,7 +341,23 @@ export default {
         formatFecha(fecha) {
             if(!fecha) return '';
             const d = new Date(fecha);
-            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const fechaPart = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const horaPart = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+            return fechaPart + ' ' + horaPart;
+        },
+        formatAlertFecha(fechaTexto) {
+            if (!fechaTexto) return '';
+            if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(fechaTexto)) {
+                try {
+                    const d = new Date(fechaTexto.replace(' ', 'T'));
+                    const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+                    let formatted = d.toLocaleDateString('es-ES', opciones);
+                    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+                } catch (e) {
+                    return fechaTexto;
+                }
+            }
+            return fechaTexto;
         },
         async borrarAlerta(id) {
             if(!confirm('¿Estás seguro de borrar esta alerta?')) return;

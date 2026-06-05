@@ -160,7 +160,7 @@
                         try {
                             if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alerta->fecha_texto)) {
                                 $date = \Carbon\Carbon::parse($alerta->fecha_texto);
-                                $fechaDisplay = $date->isoFormat('dddd D [de] MMMM, h:mm A');
+                                $fechaDisplay = $date->isoFormat('dddd D [de] MMMM [de] YYYY, h:mm A');
                                 $fechaDisplay = ucfirst($fechaDisplay);
                             }
                         } catch (\Exception $e) {}

@@ -170,7 +170,7 @@
         <div class="login-box">
             
             <div class="logo-area">
-                <img src="{{ asset('img/logo_hidrovida.png') }}" alt="Logo">
+                <img src="{{ asset('img/logo_blanco.svg') }}" alt="Logo">
             </div>
 
             <div class="form-subtitle">

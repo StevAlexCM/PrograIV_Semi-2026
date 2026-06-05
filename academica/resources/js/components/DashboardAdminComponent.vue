@@ -14,7 +14,7 @@
           </div>
           <div class="text-start d-none d-lg-block">
             <div class="fw-semibold text-dark leading-none" style="font-size: 0.85rem;">{{ adminName }}</div>
-            <div class="text-muted leading-none" style="font-size: 0.75rem;">Rol: Admin</div>
+            <div class="text-muted leading-none" style="font-size: 0.75rem;">Rol: Administrador</div>
           </div>
         </div>
       </div>
@@ -340,8 +340,23 @@
                     <input type="date" v-model="alertaForm.fecha_limite" class="form-control" required>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted small">Hora de Inicio (Reloj)</label>
-                    <input type="time" v-model="alertaForm.hora_limite" class="form-control" required>
+                    <label class="form-label fw-semibold text-muted small">Hora de Inicio (AM/PM)</label>
+                    <div class="d-flex gap-2">
+                      <select v-model="alertaForm.hora_12" class="form-select" required>
+                        <option value="" disabled selected>Hora</option>
+                        <option v-for="h in 12" :key="h" :value="h.toString().padStart(2, '0')">{{ h }}</option>
+                      </select>
+                      <select v-model="alertaForm.minutos" class="form-select" required>
+                        <option value="" disabled selected>Min</option>
+                        <option v-for="m in 60" :key="m-1" :value="(m-1).toString().padStart(2, '0')">
+                          {{ (m-1).toString().padStart(2, '0') }}
+                        </option>
+                      </select>
+                      <select v-model="alertaForm.periodo" class="form-select" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -371,7 +386,7 @@
                 </div>
                 <div v-else v-for="a in alertasList" :key="a.id" class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-2 border">
                   <div>
-                    <span class="badge text-uppercase me-2" :class="alertBadgeClass(a.tipo)">{{ a.tipo }}</span>
+                    <span class="badge text-uppercase me-2" :class="alertBadgeClass(a.tipo)">{{ a.tipo === 'red' ? 'Rojo' : (a.tipo === 'yellow' ? 'Amarillo' : 'Azul') }}</span>
                     <strong class="text-dark small">{{ a.titulo }}</strong>
                     <div class="text-muted extra-small mt-1"><i class="bi bi-geo-alt me-1"></i>{{ a.zona }} | {{ formatAlertFecha(a.fecha_texto) }}</div>
                   </div>
@@ -482,11 +497,18 @@
                 <div class="row g-3 mb-3">
                   <div class="col-md-12">
                     <label class="form-label fw-semibold text-muted small">Seleccionar Usuario (Número de Cuenta)</label>
+                    
+                    <!-- Search input with magnifying glass (lupa de búsqueda) -->
+                    <div class="input-group input-group-sm mb-2 shadow-sm border rounded-pill overflow-hidden bg-light" style="max-width: 100%;">
+                      <span class="input-group-text bg-transparent border-0 px-3"><i class="bi bi-search text-muted"></i></span>
+                      <input autocomplete="off" type="search" v-model="searchUsuarioPago" placeholder="Buscar por cuenta, nombre o correo..." class="form-control border-0 bg-transparent shadow-none py-1.5">
+                    </div>
+
                     <div class="input-group">
                       <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
                       <select v-model="pagoForm.id_usuario" class="form-select" required @change="buscarLecturaAnterior">
                         <option value="" disabled>-- Seleccione un usuario / cuenta --</option>
-                        <option v-for="u in usuariosList" :key="u.id_usuario" :value="u.id_usuario">
+                        <option v-for="u in usuariosFiltradosPago" :key="u.id_usuario" :value="u.id_usuario">
                           Cuenta #{{ u.id_usuario }} - {{ u.nombre_completo || 'Usuario sin nombre' }} ({{ u.correo_usuario }})
                         </option>
                       </select>
@@ -558,9 +580,13 @@
                       <span>Cuota Base Fija:</span>
                       <span>$4.50</span>
                     </div>
-                    <div class="d-flex justify-content-between pb-2 border-bottom">
+                    <div class="d-flex justify-content-between">
                       <span>Costo por Consumo (m³ × $1.50):</span>
                       <span>${{ costoConsumoCalculado }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between pb-2 border-bottom text-danger" v-if="saldoPendienteAcumulado > 0">
+                      <span>Deuda Pendiente Acumulada:</span>
+                      <span class="fw-semibold">${{ saldoPendienteAcumulado }}</span>
                     </div>
                     <div class="d-flex justify-content-between pt-1 fw-bold text-dark fs-6">
                       <span>Total a Pagar:</span>
@@ -711,6 +737,17 @@
             <span>Total a Pagar:</span>
             <span class="text-primary">${{ parseFloat(ticketReceipt.total_pagar).toFixed(2) }}</span>
           </div>
+
+          <div class="border-top border-dashed my-2"></div>
+
+          <div v-if="ticketReceipt.estado_pago !== 'Pagado'" class="alert alert-warning py-1.5 px-3 mt-2 text-center border-0 rounded-3 mb-0" style="font-size: 0.72rem;">
+            <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>
+            <strong>Pendiente de Pago:</strong> El usuario debe pagar este recibo.
+          </div>
+          <div v-else class="alert alert-success py-1.5 px-3 mt-2 text-center border-0 rounded-3 mb-0" style="font-size: 0.72rem;">
+            <i class="bi bi-check-circle-fill me-1 text-success"></i>
+            <strong>Recibo Pagado:</strong> ¡Gracias por estar al día!
+          </div>
           
           <div class="border-top border-dashed my-3"></div>
           
@@ -768,6 +805,9 @@ export default {
         titulo: '',
         fecha_limite: '',
         hora_limite: '',
+        hora_12: '',
+        minutos: '',
+        periodo: 'AM',
         fecha_texto: '',
         zona: '',
         motivo: '',
@@ -786,6 +826,7 @@ export default {
       searchUsuarios: '',
       searchReportes: '',
       searchPagos: '',
+      searchUsuarioPago: '',
       chartPeriod: '15',
       
       
@@ -854,6 +895,15 @@ export default {
         (u.sector_zona && u.sector_zona.toLowerCase().includes(q))
       );
     },
+    usuariosFiltradosPago() {
+      if (!this.searchUsuarioPago) return this.usuariosList;
+      const q = this.searchUsuarioPago.toLowerCase();
+      return this.usuariosList.filter(u => 
+        (u.id_usuario && u.id_usuario.toString().includes(q)) ||
+        (u.nombre_completo && u.nombre_completo.toLowerCase().includes(q)) ||
+        (u.correo_usuario && u.correo_usuario.toLowerCase().includes(q))
+      );
+    },
     filteredReportes() {
       if (!this.searchReportes) return this.reportesList;
       const q = this.searchReportes.toLowerCase();
@@ -872,8 +922,15 @@ export default {
     costoConsumoCalculado() {
       return parseFloat((this.consumoCalculado * 1.50).toFixed(2));
     },
+    saldoPendienteAcumulado() {
+      if (!this.pagoForm.id_usuario) return 0;
+      const userId = parseInt(this.pagoForm.id_usuario);
+      const pendingRecibos = this.pagosList.filter(p => p.id_usuario === userId && p.estado_pago !== 'Pagado');
+      const totalPending = pendingRecibos.reduce((sum, p) => sum + parseFloat(p.total_pagar), 0);
+      return parseFloat(totalPending.toFixed(2));
+    },
     totalPagarCalculado() {
-      return parseFloat((this.costoConsumoCalculado + 4.50).toFixed(2));
+      return parseFloat((this.costoConsumoCalculado + 4.50 + this.saldoPendienteAcumulado).toFixed(2));
     },
     lecturaActualInvalida() {
       if (!this.pagoForm.lectura_actual) return false;
@@ -998,14 +1055,16 @@ export default {
     formatFecha(fecha) {
       if (!fecha) return '';
       const d = new Date(fecha);
-      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const fechaPart = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const horaPart = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return fechaPart + ' ' + horaPart;
     },
     formatAlertFecha(fechaTexto) {
       if (!fechaTexto) return '';
       if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(fechaTexto)) {
         try {
           const d = new Date(fechaTexto.replace(' ', 'T'));
-          const opciones = { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' };
+          const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
           let formatted = d.toLocaleDateString('es-ES', opciones);
           return formatted.charAt(0).toUpperCase() + formatted.slice(1);
         } catch (e) {
@@ -1042,9 +1101,13 @@ export default {
     async crearAlerta() {
       this.guardandoAlerta = true;
       try {
-        // Combine date and time picker fields into YYYY-MM-DD HH:mm format
-        if (this.alertaForm.fecha_limite && this.alertaForm.hora_limite) {
-          this.alertaForm.fecha_texto = `${this.alertaForm.fecha_limite} ${this.alertaForm.hora_limite}`;
+        // Combine date and 12-hour time selection into YYYY-MM-DD HH:mm format
+        if (this.alertaForm.fecha_limite && this.alertaForm.hora_12 && this.alertaForm.minutos && this.alertaForm.periodo) {
+          let hrs = parseInt(this.alertaForm.hora_12);
+          if (this.alertaForm.periodo === 'PM' && hrs < 12) hrs += 12;
+          if (this.alertaForm.periodo === 'AM' && hrs === 12) hrs = 0;
+          let hrsStr = hrs.toString().padStart(2, '0');
+          this.alertaForm.fecha_texto = `${this.alertaForm.fecha_limite} ${hrsStr}:${this.alertaForm.minutos}`;
         }
         
         const res = await axios.post("/admin/alertas-api", this.alertaForm);
@@ -1053,7 +1116,9 @@ export default {
           // Reset form
           this.alertaForm.titulo = '';
           this.alertaForm.fecha_limite = '';
-          this.alertaForm.hora_limite = '';
+          this.alertaForm.hora_12 = '';
+          this.alertaForm.minutos = '';
+          this.alertaForm.periodo = 'AM';
           this.alertaForm.fecha_texto = '';
           this.alertaForm.zona = '';
           this.alertaForm.motivo = '';

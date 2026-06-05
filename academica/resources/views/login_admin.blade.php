@@ -309,8 +309,12 @@
                     success: function(response) {
                         if (response.success) {
                             alertify.success(response.message);
+                            
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirectUrl = urlParams.get('redirect');
+                            
                             setTimeout(function() {
-                                window.location.href = response.url;
+                                window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : response.url;
                             }, 1000);
                         } else {
                             alertify.error(response.message);

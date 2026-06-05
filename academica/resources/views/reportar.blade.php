@@ -51,27 +51,39 @@
         border-radius: 12px;
         padding: 2rem 1rem;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         height: 100%;
         text-align: center;
         font-weight: 500;
         font-size: 1.1rem;
         border: 3px solid transparent;
+        opacity: 0.75;
     }
     .category-label svg {
         width: 40px;
         height: 40px;
         color: white;
         fill: white;
-    }
-    .category-option input:checked + .category-label {
-        background-color: #1b4b6b;
-        border-color: #89b3d0;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(27, 75, 107, 0.3);
+        transition: transform 0.3s ease;
     }
     .category-label:hover {
         background-color: #1b4b6b;
+        opacity: 0.95;
+        transform: translateY(-2px);
+    }
+    .category-label:hover svg {
+        transform: scale(1.1);
+    }
+    .category-option input:checked + .category-label {
+        background-color: #1b3650;
+        border-color: #2cc0b3;
+        opacity: 1;
+        transform: scale(1.05) translateY(-4px);
+        box-shadow: 0 10px 25px rgba(44, 192, 179, 0.45);
+        font-weight: 700;
+    }
+    .category-option input:checked + .category-label svg {
+        transform: scale(1.15);
     }
 
     .form-group {
@@ -284,7 +296,7 @@
             <p class="section-subtitle">Para que podamos informarte sobre el seguimiento</p>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <input type="text" id="contacto_nombre" class="custom-input" placeholder="Tu nombre" required>
+                    <input type="text" id="contacto_nombre" class="custom-input" placeholder="Tu nombre" value="{{ session('usuario_nombre', '') }}" required>
                 </div>
                 <div class="col-md-6">
                     <input type="tel" id="contacto_telefono" class="custom-input" placeholder="Tu teléfono" required>
@@ -317,7 +329,14 @@
         e.preventDefault();
 
         @if(!session()->has('usuario_id') && !session()->has('admin_id'))
-        window.location.href = '/login';
+        const pendingData = {
+            categoria: document.querySelector('input[name="categoria"]:checked')?.value || 'agua_sucia',
+            descripcion: document.getElementById('descripcion').value,
+            sector_manzana_calle: document.getElementById('sector_manzana_calle').value,
+            contacto_telefono: document.getElementById('contacto_telefono').value
+        };
+        localStorage.setItem('pending_report_data', JSON.stringify(pendingData));
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         return;
         @endif
 
@@ -336,7 +355,7 @@
         const data = {
             categoria_de_problema: formData.get('categoria'),
             descripcion: formData.get('descripcion'),
-            numero_casa: 'N/A', // Set to N/A as requested by new design 
+            numero_casa: 'N/A', 
             sector_manzana_calle: formData.get('sector_manzana_calle'),
             Informacion_de_contacto: `${nombre} - ${telefono}`
         };
@@ -447,5 +466,39 @@
             }
         );
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const pendingDataStr = localStorage.getItem('pending_report_data');
+        if (pendingDataStr) {
+            try {
+                const pendingData = JSON.parse(pendingDataStr);
+                
+                if (pendingData.categoria) {
+                    const radio = document.querySelector(`input[name="categoria"][value="${pendingData.categoria}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                }
+                
+                if (pendingData.descripcion) {
+                    document.getElementById('descripcion').value = pendingData.descripcion;
+                }
+                
+                if (pendingData.sector_manzana_calle) {
+                    document.getElementById('sector_manzana_calle').value = pendingData.sector_manzana_calle;
+                }
+                
+                if (pendingData.contacto_telefono) {
+                    document.getElementById('contacto_telefono').value = pendingData.contacto_telefono;
+                }
+                
+                alertify.success('Información del reporte restaurada.');
+            } catch (e) {
+                console.error('Error al restaurar el reporte pendiente:', e);
+            } finally {
+                localStorage.removeItem('pending_report_data');
+            }
+        }
+    });
 </script>
 @endsection
