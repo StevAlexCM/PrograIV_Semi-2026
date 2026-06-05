@@ -147,8 +147,7 @@
     /* Action Buttons */
     .actions-row {
         display: flex;
-        justify-content: flex-end;
-        gap: 1.5rem;
+        justify-content: space-between;
         margin-bottom: 3rem;
     }
     .btn-send, .btn-cancel {
@@ -196,7 +195,7 @@
         .category-option { min-width: 45%; }
         .location-row { flex-direction: column; }
         .btn-location { width: 100%; justify-content: center; }
-        .actions-row { flex-direction: column; }
+        .actions-row { flex-direction: column-reverse; gap: 1rem; }
         .btn-send, .btn-cancel { width: 100%; }
     }
 </style>
@@ -306,8 +305,8 @@
 
         
         <div class="actions-row">
-            <button type="submit" class="btn-send" id="btnSubmit">ENVIAR</button>
             <button type="reset" class="btn-cancel">CANCELAR</button>
+            <button type="submit" class="btn-send" id="btnSubmit">ENVIAR</button>
         </div>
 
         
@@ -328,12 +327,38 @@
     async function enviarReporte(e) {
         e.preventDefault();
 
+        const categoria = document.querySelector('input[name="categoria"]:checked')?.value || 'agua_sucia';
+        const descripcion = document.getElementById('descripcion').value.trim();
+        const sector_manzana_calle = document.getElementById('sector_manzana_calle').value.trim();
+        const nombre = document.getElementById('contacto_nombre').value.trim();
+        const telefono = document.getElementById('contacto_telefono').value.trim();
+
+        if (!descripcion) {
+            alertify.error('Por favor, ingresa los detalles del problema (no se permiten solo espacios en blanco).');
+            return;
+        }
+
+        if (!sector_manzana_calle) {
+            alertify.error('Por favor, ingresa la ubicación (no se permiten solo espacios en blanco).');
+            return;
+        }
+
+        if (!nombre) {
+            alertify.error('Por favor, ingresa tu nombre de contacto (no se permiten solo espacios en blanco).');
+            return;
+        }
+
+        if (!telefono) {
+            alertify.error('Por favor, ingresa tu teléfono de contacto (no se permiten solo espacios en blanco).');
+            return;
+        }
+
         @if(!session()->has('usuario_id') && !session()->has('admin_id'))
         const pendingData = {
-            categoria: document.querySelector('input[name="categoria"]:checked')?.value || 'agua_sucia',
-            descripcion: document.getElementById('descripcion').value,
-            sector_manzana_calle: document.getElementById('sector_manzana_calle').value,
-            contacto_telefono: document.getElementById('contacto_telefono').value
+            categoria: categoria,
+            descripcion: descripcion,
+            sector_manzana_calle: sector_manzana_calle,
+            contacto_telefono: telefono
         };
         localStorage.setItem('pending_report_data', JSON.stringify(pendingData));
         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
@@ -342,28 +367,14 @@
 
         const btnSubmit = document.getElementById('btnSubmit');
         const form = document.getElementById('reporteForm');
-        
-        const formData = new FormData(form);
-        const nombre = document.getElementById('contacto_nombre').value.trim();
-        const telefono = document.getElementById('contacto_telefono').value.trim();
-
-        if (!nombre || !telefono) {
-            alertify.error('Por favor ingresa tu nombre y teléfono de contacto.');
-            return;
-        }
 
         const data = {
-            categoria_de_problema: formData.get('categoria'),
-            descripcion: formData.get('descripcion'),
+            categoria_de_problema: categoria,
+            descripcion: descripcion,
             numero_casa: 'N/A', 
-            sector_manzana_calle: formData.get('sector_manzana_calle'),
+            sector_manzana_calle: sector_manzana_calle,
             Informacion_de_contacto: `${nombre} - ${telefono}`
         };
-
-        if (!data.sector_manzana_calle) {
-            alertify.error('Por favor ingresa tu ubicación.');
-            return;
-        }
 
         btnSubmit.disabled = true;
         btnSubmit.innerHTML = 'Enviando...';
